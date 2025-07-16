@@ -47,10 +47,10 @@ export default function ExplorePage() {
     if (!token) return;
     setLoading(true);
     axios
-      .get("/users/me")
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`)
       .then((res) => {
         setCurrentUserId(res.data._id);
-        return axios.get("/users");
+        return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users`);
       })
       .then((res) => {
         setUsers(res.data);
@@ -68,11 +68,11 @@ export default function ExplorePage() {
     if (!token) return;
     setTrendingLoading(true);
     setSuggestedLoading(true);
-    axios.get("/posts/trending").then(res => {
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/posts/trending`).then(res => {
       setTrendingPosts(res.data);
       setTrendingLoading(false);
     }).catch(() => setTrendingLoading(false));
-    axios.get("/users/suggested").then(res => {
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/suggested`).then(res => {
       setSuggestedUsers(res.data);
       setSuggestedLoading(false);
     }).catch(() => setSuggestedLoading(false));
@@ -84,10 +84,10 @@ export default function ExplorePage() {
     setFollowLoading(userId);
     try {
       if (isFollowing) {
-        await axios.post(`/users/${userId}/unfollow`, {});
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/unfollow`, {});
         showToast("Unfollowed user.", "success");
       } else {
-        await axios.post(`/users/${userId}/follow`, {});
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/follow`, {});
         showToast("Followed user.", "success");
         // Remove from suggested users if present
         setSuggestedUsers((prev) => prev.filter((u) => u._id !== userId));

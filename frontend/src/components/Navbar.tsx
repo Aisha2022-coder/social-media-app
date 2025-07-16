@@ -36,7 +36,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (showDropdown) {
-      axios.get("/notifications").then(res => {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notifications`).then(res => {
         setNotifications(res.data);
         setUnreadCount(res.data.filter((n: Notification) => !n.read).length);
       });
@@ -63,7 +63,7 @@ export default function Navbar() {
   };
 
   const handleMarkAllRead = async () => {
-    await axios.post("/notifications/mark-read");
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notifications/mark-read`);
     setNotifications((prev) => prev.map(n => ({ ...n, read: true })));
     setUnreadCount(0);
   };

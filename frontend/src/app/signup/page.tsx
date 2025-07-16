@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import axios from "axios"
+import axios from "@/lib/axios"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -21,7 +21,7 @@ export default function SignupPage() {
   const handleSubmit = async () => {
     try {
       setLoading(true)
-      await axios.post("/auth/signup", form)
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, form)
       showToast("Signup successful! Please login.", "success")
       router.push("/login")
     } catch (error) {

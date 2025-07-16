@@ -57,7 +57,7 @@ export default function CreatePostPage() {
       mediaFiles.forEach(file => {
         formData.append("media", file);
       });
-      await axios.post("/posts", formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/posts`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       showToast("Post created!", "success");

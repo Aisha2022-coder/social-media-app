@@ -45,7 +45,7 @@ export default function OtherUserProfilePage() {
   const fetchUsersByIds = async (ids: string[]) => {
     if (!ids.length) return [];
     try {
-      const res = await axios.get(`/users/by-ids?ids=${ids.join(',')}`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/by-ids?ids=${ids.join(',')}`);
       console.log('Requested IDs:', ids);
       console.log('Fetched users:', res.data);
       return res.data;

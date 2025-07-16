@@ -21,7 +21,7 @@ export default function LoginPage() {
   const handleSubmit = async () => {
     try {
       setLoading(true)
-      const res = await axios.post("/auth/login", form)
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, form)
       const { accessToken } = res.data
       localStorage.setItem("token", accessToken) 
       showToast("Login successful!", "success");

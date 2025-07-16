@@ -72,7 +72,7 @@ export default function ProfilePage() {
     formData.append("file", file);
     setUploading(true);
     try {
-      const res = await axios.post("/users/me/profile-picture", formData, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/me/profile-picture`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setUser({ ...user, profilePicture: res.data.profilePicture });
@@ -87,7 +87,7 @@ export default function ProfilePage() {
 
   const fetchUsersByIds = async (ids: string[]) => {
     if (!ids.length) return [];
-    const res = await axios.get(`/users/by-ids?ids=${ids.join(',')}`);
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/by-ids?ids=${ids.join(',')}`);
     return res.data;
   };
 

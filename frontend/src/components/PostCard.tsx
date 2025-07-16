@@ -40,7 +40,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const fetchComments = async () => {
     setCommentsLoading(true);
     try {
-      const res = await axios.get(`/posts/${post._id}/comments`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post._id}/comments`);
       setComments(res.data);
     } catch {
       setComments([]);
@@ -57,7 +57,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     if (!commentText.trim() || !currentUserId) return;
     setCommentSubmitting(true);
     try {
-      await axios.post(`/posts/${post._id}/comments`, { text: commentText });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post._id}/comments`, { text: commentText });
       setCommentText("");
       fetchComments();
       showToast("Comment added!", "success");
@@ -68,7 +68,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   useEffect(() => {
-    axios.get("/users/me").then(res => setCurrentUserId(res.data._id)).catch(() => setCurrentUserId(null));
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`).then(res => setCurrentUserId(res.data._id)).catch(() => setCurrentUserId(null));
   }, []);
 
   const hasMedia = post.media && post.media.length > 0;
@@ -79,7 +79,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     if (!currentUserId) return;
     setLikeLoading(true);
     try {
-      const res = await axios.post(`/posts/${post._id}/like`);
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post._id}/like`);
       if (res.data.liked) {
         setLikes(prev => [...prev, currentUserId]);
       } else {
