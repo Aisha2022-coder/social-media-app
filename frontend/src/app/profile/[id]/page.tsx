@@ -78,17 +78,17 @@ export default function OtherUserProfilePage() {
     setLoading(true);
     // Get current user id
     axios
-      .get("http://localhost:3000/users/me", {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         setCurrentUserId(res.data.userId);
-        return axios.get(`http://localhost:3000/users/${id}`);
+        return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
       })
       .then((res) => {
         setUser(res.data);
         setIsFollowing(res.data.followers.includes(currentUserId));
-        return axios.get(`http://localhost:3000/users/${id}/posts`);
+        return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}/posts`);
       })
       .then((res) => {
         setPosts(res.data);
@@ -113,19 +113,19 @@ export default function OtherUserProfilePage() {
     try {
       if (isFollowing) {
         await axios.post(
-          `http://localhost:3000/users/${id}/unfollow`,
+          `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/unfollow`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         await axios.post(
-          `http://localhost:3000/users/${id}/follow`,
+          `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/follow`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
       
-      const res = await axios.get(`http://localhost:3000/users/${id}`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
       setUser(res.data);
     } catch (err) {
     } finally {

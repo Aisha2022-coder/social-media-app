@@ -31,7 +31,7 @@ export default function TimelinePage() {
       return;
     }
     axios
-      .get("http://localhost:3000/feed", {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/feed`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

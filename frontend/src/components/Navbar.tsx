@@ -17,7 +17,7 @@ export default function Navbar() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    fetch("http://localhost:3000/users/me", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -94,7 +94,7 @@ export default function Navbar() {
         <span className="text-lg mt-0.5">{icon}</span>
         {fromUsername && (
           fromProfilePicture ? (
-            <img src={`http://localhost:3000${fromProfilePicture}`} alt={fromUsername} className="h-8 w-8 rounded-full object-cover border" />
+            <img src={`${process.env.NEXT_PUBLIC_API_URL}${fromProfilePicture}`} alt={fromUsername} className="h-8 w-8 rounded-full object-cover border" />
           ) : (
             <span className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-base" style={{minWidth:32}}>{fromUsername.charAt(0).toUpperCase()}</span>
           )

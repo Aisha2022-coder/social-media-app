@@ -47,12 +47,12 @@ export default function ProfilePage() {
     if (!token) return;
     setLoading(true);
     axios
-      .get("http://localhost:3000/users/me", {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         setUser(res.data);
-        return axios.get(`http://localhost:3000/users/${res.data._id}/posts`);
+        return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${res.data._id}/posts`);
       })
       .then((res) => {
         setPosts(res.data);
@@ -126,7 +126,7 @@ export default function ProfilePage() {
             <div className="relative">
               {user.profilePicture ? (
                 <img
-                  src={`http://localhost:3000${user.profilePicture}`}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}${user.profilePicture}`}
                   alt="Profile"
                   className="rounded-full object-cover"
                   style={{ width: 48, height: 48 }}

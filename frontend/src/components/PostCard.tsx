@@ -95,21 +95,21 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       </div>
       {hasMedia && post.media![0].type === "image" && (
         <img
-          src={`http://localhost:3000${post.media![0].url}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![0].url}`}
           alt="Post media"
           className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
         />
       )}
       {hasMedia && post.media![0].type === "video" && (
         <video
-          src={`http://localhost:3000${post.media![0].url}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![0].url}`}
           controls
           className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
         />
       )}
       {hasMedia && post.media![0].type === "gif" && (
         <img
-          src={`http://localhost:3000${post.media![0].url}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![0].url}`}
           alt="Post gif"
           className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
         />
@@ -153,9 +153,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                       aria-label={`Show media ${idx + 1}`}
                     >
                       {m.type === "image" || m.type === "gif" ? (
-                        <img src={`http://localhost:3000${m.url}`} alt="thumb" className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" />
+                        <img src={`${process.env.NEXT_PUBLIC_API_URL}${m.url}`} alt="thumb" className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" />
                       ) : m.type === "video" ? (
-                        <video src={`http://localhost:3000${m.url}`} className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" />
+                        <video src={`${process.env.NEXT_PUBLIC_API_URL}${m.url}`} className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" />
                       ) : null}
                     </button>
                   ))}
@@ -163,13 +163,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <div className="flex justify-center">
                   {post.media![activeMediaIdx].type === "image" || post.media![activeMediaIdx].type === "gif" ? (
                     <img
-                      src={`http://localhost:3000${post.media![activeMediaIdx].url}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![activeMediaIdx].url}`}
                       alt="Post media large"
                       className="max-h-28 xs:max-h-40 sm:max-h-80 w-full object-contain rounded"
                     />
                   ) : post.media![activeMediaIdx].type === "video" ? (
                     <video
-                      src={`http://localhost:3000${post.media![activeMediaIdx].url}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![activeMediaIdx].url}`}
                       controls
                       autoPlay
                       className="max-h-28 xs:max-h-40 sm:max-h-80 w-full object-contain rounded"
