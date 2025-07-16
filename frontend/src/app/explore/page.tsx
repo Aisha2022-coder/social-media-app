@@ -144,8 +144,8 @@ export default function ExplorePage() {
         <h1 className="text-2xl font-bold mb-4">Explore</h1>
         {/* Trending Posts */}
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl font-semibold">Trending Posts</span>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-lg sm:text-xl font-semibold">Trending Posts</span>
             <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded text-xs font-bold flex items-center">🔥 Trending</span>
           </div>
           {trendingLoading ? (
@@ -153,36 +153,36 @@ export default function ExplorePage() {
           ) : trendingPosts.length === 0 ? (
             <EmptyState message="No trending posts found." />
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex overflow-x-auto pb-2 snap-x snap-mandatory">
               {trendingPosts.map(post => (
-                <div key={post._id} className="min-w-[320px] max-w-xs flex-shrink-0">
+                <div key={post._id} className="w-full min-w-0 max-w-full sm:min-w-[320px] sm:max-w-xs flex-shrink-0 snap-center px-0.5">
                   <PostCard post={{ ...post, media: post.media || [], likes: post.likes || [] }} />
                 </div>
               ))}
             </div>
           )}
         </div>
-        <hr className="my-6 border-gray-200" />
+        <hr className="my-4 sm:my-6 border-gray-200" />
         {/* Suggested Users */}
         <div>
-          <span className="text-xl font-semibold mb-2 block">Suggested Users</span>
+          <span className="text-lg sm:text-xl font-semibold mb-2 block">Suggested Users</span>
           {suggestedLoading ? (
             <Spinner size={32} />
           ) : suggestedUsers.length === 0 ? (
             <EmptyState message="No suggested users found." />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
               {suggestedUsers.map((user) => (
-                <div key={user._id} className="border rounded-lg p-4 flex flex-col items-center bg-white shadow-sm hover:shadow-lg transition-shadow">
-                  <Avatar username={user.username} size={48} />
-                  <Link href={`/profile/${user._id}`} className="font-semibold hover:underline mt-2 mb-1 text-center w-full truncate">
+                <div key={user._id} className="border rounded-lg p-2 sm:p-4 flex flex-col items-center bg-white shadow-sm hover:shadow-lg transition-shadow w-full max-w-full">
+                  <Avatar username={user.username} size={32} />
+                  <Link href={`/profile/${user._id}`} className="font-semibold hover:underline mt-2 mb-1 text-center w-full truncate text-xs sm:text-base">
                     {user.username}
                   </Link>
                   <div className="text-xs text-gray-500 mb-2 text-center w-full truncate">{user.email}</div>
                   <button
                     onClick={() => handleFollow(user._id, false)}
                     disabled={followLoading === user._id}
-                    className="w-full px-4 py-1 rounded text-white transition bg-blue-500 hover:bg-blue-600 mt-1"
+                    className="w-full px-2 py-1 rounded text-xs sm:text-sm text-white transition bg-blue-500 hover:bg-blue-600 mt-1"
                     aria-label={`Follow ${user.username}`}
                   >
                     {followLoading === user._id ? "Following..." : "Follow"}
@@ -192,53 +192,55 @@ export default function ExplorePage() {
             </div>
           )}
         </div>
-        <hr className="my-6 border-gray-200" />
+        <hr className="my-4 sm:my-6 border-gray-200" />
         {/* User Search (existing) */}
         <div>
-          <span className="text-xl font-semibold mb-2 block">Search Users</span>
+          <span className="text-lg sm:text-xl font-semibold mb-2 block">Search Users</span>
           <div className="relative mb-4">
             <input
               type="text"
               placeholder="Search by username..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full border rounded p-2 pl-9"
+              className="w-full border rounded p-2 pl-9 text-xs sm:text-sm"
             />
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">🔍</span>
           </div>
           {filteredUsers.length === 0 ? (
             <EmptyState message="No users found." />
           ) : (
-            filteredUsers.map((user) => {
-              const isFollowing = user.followers.includes(currentUserId);
-              return (
-                <div key={user._id} className="border rounded-lg p-3 sm:p-4 mb-2 flex flex-col sm:flex-row items-center justify-between gap-3 w-full shadow-sm hover:shadow-lg transition-shadow bg-white cursor-pointer">
-                  <div className="flex items-center gap-3 w-full">
-                    <Avatar username={user.username} size={36} />
-                    <div className="flex-1 min-w-0">
-                      <Link href={`/profile/${user._id}`} className="font-semibold hover:underline break-words">
-                        {user.username}
-                      </Link>
-                      <div className="text-xs text-gray-500 break-words">{user.email}</div>
+            <div className="flex flex-col gap-2">
+              {filteredUsers.map((user) => {
+                const isFollowing = user.followers.includes(currentUserId);
+                return (
+                  <div key={user._id} className="border rounded-lg p-2 sm:p-4 mb-2 flex flex-col items-center sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 w-full shadow-sm hover:shadow-lg transition-shadow bg-white cursor-pointer max-w-full">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full">
+                      <Avatar username={user.username} size={28} />
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/profile/${user._id}`} className="font-semibold hover:underline break-words text-xs sm:text-base">
+                          {user.username}
+                        </Link>
+                        <div className="text-xs text-gray-500 break-words">{user.email}</div>
+                      </div>
                     </div>
+                    <button
+                      onClick={() => handleFollow(user._id, isFollowing)}
+                      disabled={followLoading === user._id}
+                      className={`w-full sm:w-auto mt-2 sm:mt-0 px-2 py-1 rounded text-xs sm:text-sm text-white transition ${isFollowing ? "bg-gray-400 hover:bg-gray-500" : "bg-blue-500 hover:bg-blue-600"}`}
+                      aria-label={isFollowing ? `Unfollow ${user.username}` : `Follow ${user.username}`}
+                    >
+                      {followLoading === user._id
+                        ? isFollowing
+                          ? "Unfollowing..."
+                          : "Following..."
+                        : isFollowing
+                        ? "Unfollow"
+                        : "Follow"}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleFollow(user._id, isFollowing)}
-                    disabled={followLoading === user._id}
-                    className={`w-full sm:w-auto mt-2 sm:mt-0 px-4 py-1 rounded text-white transition ${isFollowing ? "bg-gray-400 hover:bg-gray-500" : "bg-blue-500 hover:bg-blue-600"}`}
-                    aria-label={isFollowing ? `Unfollow ${user.username}` : `Follow ${user.username}`}
-                  >
-                    {followLoading === user._id
-                      ? isFollowing
-                        ? "Unfollowing..."
-                        : "Following..."
-                      : isFollowing
-                      ? "Unfollow"
-                      : "Follow"}
-                  </button>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       </div>

@@ -77,7 +77,7 @@ export default function CreatePostPage() {
         <div className="flex justify-center items-center h-screen"><Spinner size={48} /></div>
       ) : (
         <div className="flex min-h-screen items-center justify-center bg-white p-2 sm:p-4">
-          <div className="w-full max-w-md space-y-4 border p-4 sm:p-6 rounded-xl shadow-sm bg-white">
+          <div className="w-full max-w-md space-y-4 border p-2 xs:p-3 sm:p-4 sm:p-6 rounded-xl shadow-sm bg-white">
             <h2 className="text-2xl font-semibold">Create a Post</h2>
             <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
             <Input
@@ -94,10 +94,10 @@ export default function CreatePostPage() {
               placeholder="Description"
               value={form.description}
               onChange={handleChange}
-              className="w-full border rounded p-2 min-h-[80px]"
+              className="w-full border rounded p-2 min-h-[80px] text-xs sm:text-sm"
             />
             <label htmlFor="media" className="block text-sm font-medium mb-1 mt-2">Media (image, video, or GIF, up to 5 files)</label>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-col xs:flex-row gap-2 items-stretch xs:items-center">
               {/* Hidden file input */}
               <input
                 id="media"
@@ -114,13 +114,13 @@ export default function CreatePostPage() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 focus:outline-none"
+                className="w-full xs:w-auto px-3 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded shadow hover:bg-blue-700 focus:outline-none"
                 aria-label="Choose Files"
               >
                 Choose Files
               </button>
               {/* File name display */}
-              <div className="flex-1 min-w-0 bg-gray-100 border border-gray-300 rounded px-3 py-2 text-sm truncate">
+              <div className="flex-1 min-w-0 bg-gray-100 border border-gray-300 rounded px-2 py-2 text-xs sm:text-sm truncate mt-1 xs:mt-0">
                 {mediaFiles.length > 0
                   ? mediaFiles.map(f => f.name).join(", ")
                   : "No file chosen"}
@@ -131,9 +131,9 @@ export default function CreatePostPage() {
                 {mediaPreviews.map((preview, idx) => (
                   <div key={idx} className="relative group">
                     {mediaFiles[idx] && mediaFiles[idx].type.startsWith("image/") ? (
-                      <img src={preview} alt="Preview" className="max-h-32 rounded w-full object-cover" />
+                      <img src={preview} alt="Preview" className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" />
                     ) : mediaFiles[idx] && mediaFiles[idx].type.startsWith("video/") ? (
-                      <video src={preview} controls className="max-h-32 rounded w-full object-cover" />
+                      <video src={preview} controls className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" />
                     ) : null}
                     <button
                       type="button"
@@ -148,7 +148,7 @@ export default function CreatePostPage() {
               </div>
             )}
             {error && <div className="text-red-500 text-sm">{error}</div>}
-            <Button onClick={handleSubmit} disabled={loading} className="w-full" aria-label="Create Post">
+            <Button onClick={handleSubmit} disabled={loading} className="w-full text-xs sm:text-sm py-2" aria-label="Create Post">
               {loading ? "Posting..." : "Create Post"}
             </Button>
           </div>
