@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Avatar from "@/components/Avatar";
 import Modal from "@/components/Modal";
 import axios from "@/lib/axios";
@@ -37,7 +37,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [commentSubmitting, setCommentSubmitting] = useState(false);
   const { showToast } = useToast();
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     setCommentsLoading(true);
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post._id}/comments`);
@@ -46,7 +46,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       setComments([]);
     }
     setCommentsLoading(false);
-  };
+  }, [post._id]);
 
   useEffect(() => {
     if (showDetail) fetchComments();
