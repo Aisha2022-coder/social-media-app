@@ -126,7 +126,7 @@ export default function OtherUserProfilePage() {
       
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
       setUser(res.data);
-    } catch (err) {
+    } catch {
     } finally {
       setFollowLoading(false);
     }
