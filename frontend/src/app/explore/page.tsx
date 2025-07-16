@@ -105,7 +105,7 @@ export default function ExplorePage() {
             : u
         )
       );
-    } catch (err) {
+    } catch {
       showToast("Failed to update follow status.", "error");
     } finally {
       setFollowLoading(null);

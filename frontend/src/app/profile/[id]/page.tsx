@@ -49,8 +49,7 @@ export default function OtherUserProfilePage() {
       console.log('Requested IDs:', ids);
       console.log('Fetched users:', res.data);
       return res.data;
-    } catch (err) {
-      console.error('Error fetching users by IDs:', err);
+    } catch {
       return [];
     }
   };

@@ -77,7 +77,7 @@ export default function ProfilePage() {
       });
       setUser({ ...user, profilePicture: res.data.profilePicture });
       showToast("Profile picture updated!", "success");
-    } catch (err) {
+    } catch {
       showToast("Failed to upload profile picture.", "error");
     } finally {
       setUploading(false);
