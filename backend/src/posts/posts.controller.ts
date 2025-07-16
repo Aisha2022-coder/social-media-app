@@ -22,19 +22,24 @@ export class PostsController {
     @Req() req,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    let media: { url: string; type: string }[] = [];
-    if (files && files.length > 0) {
-      media = files.map(file => ({
-        url: file.path, // Cloudinary URL
-        type: file.mimetype.startsWith('image/') ? 'image' : file.mimetype.startsWith('video/') ? 'video' : file.mimetype.includes('gif') ? 'gif' : 'other',
-      }));
+    try {
+      let media: { url: string; type: string }[] = [];
+      if (files && files.length > 0) {
+        media = files.map(file => ({
+          url: file.path, // Cloudinary URL
+          type: file.mimetype.startsWith('image/') ? 'image' : file.mimetype.startsWith('video/') ? 'video' : file.mimetype.includes('gif') ? 'gif' : 'other',
+        }));
+      }
+      return this.postsService.createPost(
+        createPostDto.title,
+        createPostDto.description,
+        req.user.userId,
+        media
+      );
+    } catch (error) {
+      console.error('Error creating post:', error);
+      throw error;
     }
-    return this.postsService.createPost(
-      createPostDto.title,
-      createPostDto.description,
-      req.user.userId,
-      media
-    );
   }
 
   @Post(':id/like')
