@@ -11,7 +11,11 @@ export const storage = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => ({
     folder: 'social-media-app', // Folder in your Cloudinary account
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    allowed_formats: [
+      'jpg', 'jpeg', 'png', 'webp', 'gif', // images
+      'mp4', 'mov', 'avi', 'webm', 'mkv', // videos
+    ],
+    resource_type: 'auto', // Allow both images and videos
     transformation: [{ width: 800, height: 800, crop: 'limit' }],
   }),
 });
