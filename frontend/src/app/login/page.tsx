@@ -27,7 +27,7 @@ export default function LoginPage() {
       showToast("Login successful!", "success");
       router.push("/timeline")
     } catch (error) {
-      showToast((error as any)?.response?.data?.message || "Login failed", "error");
+      showToast((error as unknown as { response?: { data?: { message?: string } } })?.response?.data?.message || "Login failed", "error");
     } finally {
       setLoading(false)
     }

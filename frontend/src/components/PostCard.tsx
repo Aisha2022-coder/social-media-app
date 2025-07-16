@@ -50,7 +50,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   useEffect(() => {
     if (showDetail) fetchComments();
-  }, [showDetail]);
+  }, [showDetail, fetchComments]);
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();

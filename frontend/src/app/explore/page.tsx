@@ -56,8 +56,8 @@ export default function ExplorePage() {
         setUsers(res.data);
         setLoading(false);
       })
-      .catch((err) => {
-        setError(err?.response?.data?.message || "Failed to load users.");
+      .catch(() => {
+        setError("Failed to load users.");
         setLoading(false);
       });
   }, []);

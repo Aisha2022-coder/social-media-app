@@ -9,7 +9,7 @@ import Image from "next/image";
 interface Notification {
   _id: string;
   type: string;
-  data: any;
+  data: Record<string, unknown>;
   read: boolean;
   createdAt: string;
 }
@@ -72,18 +72,20 @@ export default function Navbar() {
     let icon = "";
     let text = "";
     let link = undefined;
-    const fromUser = n.data?.fromUser;
-    const fromUsername = n.data?.fromUsername;
-    const fromProfilePicture = n.data?.fromProfilePicture;
+    // Type assertions for known notification data shape
+    const data = n.data as { fromUser?: string; fromUsername?: string; fromProfilePicture?: string; postId?: string };
+    const fromUser = data.fromUser;
+    const fromUsername = data.fromUsername;
+    const fromProfilePicture = data.fromProfilePicture;
     if (n.type === "like") {
       icon = "♥";
       text = fromUsername ? `${fromUsername} liked your post.` : "Someone liked your post.";
-      link = n.data?.postId ? `/timeline#${n.data.postId}` : undefined;
+      link = data.postId ? `/timeline#${data.postId}` : undefined;
     }
     if (n.type === "comment") {
       icon = "💬";
       text = fromUsername ? `${fromUsername} commented on your post.` : "Someone commented on your post.";
-      link = n.data?.postId ? `/timeline#${n.data.postId}` : undefined;
+      link = data.postId ? `/timeline#${data.postId}` : undefined;
     }
     if (n.type === "follow") {
       icon = "➕";

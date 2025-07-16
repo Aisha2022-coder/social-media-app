@@ -94,8 +94,8 @@ export default function OtherUserProfilePage() {
         setPosts(res.data);
         setLoading(false);
       })
-      .catch((err) => {
-        setError(err?.response?.data?.message || "Failed to load profile.");
+      .catch(() => {
+        setError("Failed to load profile.");
         setLoading(false);
       });
   }, [id, currentUserId]);
@@ -154,7 +154,7 @@ export default function OtherUserProfilePage() {
   return (
     <ProtectedRoute>
       <div className="max-w-xl mx-auto p-4 space-y-4">
-        <h1 className="text-2xl font-bold mb-2">{user.username}'s Profile</h1>
+        <h1 className="text-2xl font-bold mb-2">{user.username}&apos;s Profile</h1>
         <div className="border rounded-lg p-4 mb-4">
           <div className="font-semibold">Username: {user.username}</div>
           <div>Email: {user.email}</div>

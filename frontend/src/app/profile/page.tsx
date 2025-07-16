@@ -9,6 +9,7 @@ import Spinner from "@/components/Spinner";
 import EmptyState from "@/components/EmptyState";
 import { useToast } from "@/components/Toast";
 import Modal from "@/components/Modal";
+import Image from "next/image";
 
 interface User {
   _id: string;
@@ -58,8 +59,8 @@ export default function ProfilePage() {
         setPosts(res.data);
         setLoading(false);
       })
-      .catch((err) => {
-        setError(err?.response?.data?.message || "Failed to load profile.");
+      .catch(() => {
+        setError("Failed to load profile.");
         setLoading(false);
       });
   }, []);
@@ -125,11 +126,12 @@ export default function ProfilePage() {
           <div className="border rounded-lg p-4 mb-4 flex flex-col sm:flex-row items-center gap-4 shadow-sm hover:shadow-lg transition-shadow bg-white">
             <div className="relative">
               {user.profilePicture ? (
-                <img
+                <Image
                   src={`${process.env.NEXT_PUBLIC_API_URL}${user.profilePicture}`}
                   alt="Profile"
                   className="rounded-full object-cover"
-                  style={{ width: 48, height: 48 }}
+                  width={48}
+                  height={48}
                 />
               ) : (
                 <Avatar username={user.username} size={48} />

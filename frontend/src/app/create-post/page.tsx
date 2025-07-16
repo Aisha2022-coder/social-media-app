@@ -9,6 +9,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useToast } from "@/components/Toast";
 import Spinner from "@/components/Spinner";
 import { useRef } from "react";
+import Image from "next/image";
 
 export default function CreatePostPage() {
   const [form, setForm] = useState({ title: "", description: "" });
@@ -62,7 +63,7 @@ export default function CreatePostPage() {
       showToast("Post created!", "success");
       router.push("/timeline");
     } catch (error) {
-      showToast((error as any)?.response?.data?.message || "Failed to create post.", "error");
+      showToast((error as unknown as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to create post.", "error");
     } finally {
       setLoading(false);
       setMediaFiles([]);
@@ -131,7 +132,7 @@ export default function CreatePostPage() {
                 {mediaPreviews.map((preview, idx) => (
                   <div key={idx} className="relative group">
                     {mediaFiles[idx] && mediaFiles[idx].type.startsWith("image/") ? (
-                      <img src={preview} alt="Preview" className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" />
+                      <Image src={preview} alt="Preview" className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" width={160} height={128} />
                     ) : mediaFiles[idx] && mediaFiles[idx].type.startsWith("video/") ? (
                       <video src={preview} controls className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" />
                     ) : null}

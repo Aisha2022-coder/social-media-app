@@ -25,7 +25,7 @@ export default function SignupPage() {
       showToast("Signup successful! Please login.", "success")
       router.push("/login")
     } catch (error) {
-      showToast((error as any)?.response?.data?.message || "Signup failed", "error")
+      showToast((error as unknown as { response?: { data?: { message?: string } } })?.response?.data?.message || "Signup failed", "error")
     } finally {
       setLoading(false)
     }
