@@ -27,18 +27,14 @@ export default function CreatePostPage() {
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const files = Array.from(e.target.files);
-    setMediaFiles(files);
-    setMediaPreviews(files.map(file => URL.createObjectURL(file)));
+    const file = e.target.files[0]; // Only take the first file
+    setMediaFiles([file]);
+    setMediaPreviews([URL.createObjectURL(file)]);
   };
 
-  const handleRemoveMedia = (index: number) => {
-    const newFiles = [...mediaFiles];
-    const newPreviews = [...mediaPreviews];
-    newFiles.splice(index, 1);
-    newPreviews.splice(index, 1);
-    setMediaFiles(newFiles);
-    setMediaPreviews(newPreviews);
+  const handleRemoveMedia = () => {
+    setMediaFiles([]);
+    setMediaPreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -97,7 +93,7 @@ export default function CreatePostPage() {
               onChange={handleChange}
               className="w-full border rounded p-2 min-h-[80px] text-xs sm:text-sm"
             />
-            <label htmlFor="media" className="block text-sm font-medium mb-1 mt-2">Media (image, video, or GIF, up to 5 files)</label>
+            <label htmlFor="media" className="block text-sm font-medium mb-1 mt-2">Media (image or video)</label>
             <div className="flex flex-col xs:flex-row gap-2 items-stretch xs:items-center">
               {/* Hidden file input */}
               <input
@@ -108,44 +104,41 @@ export default function CreatePostPage() {
                 ref={fileInputRef}
                 onChange={handleMediaChange}
                 className="hidden"
-                multiple
-                aria-label="Select media files"
+                aria-label="Select media file"
               />
               {/* Custom button */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full xs:w-auto px-3 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded shadow hover:bg-blue-700 focus:outline-none"
-                aria-label="Choose Files"
+                aria-label="Choose File"
               >
-                Choose Files
+                Choose File
               </button>
               {/* File name display */}
               <div className="flex-1 min-w-0 bg-gray-100 border border-gray-300 rounded px-2 py-2 text-xs sm:text-sm truncate mt-1 xs:mt-0">
                 {mediaFiles.length > 0
-                  ? mediaFiles.map(f => f.name).join(", ")
+                  ? mediaFiles[0].name
                   : "No file chosen"}
               </div>
             </div>
             {mediaPreviews.length > 0 && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {mediaPreviews.map((preview, idx) => (
-                  <div key={idx} className="relative group">
-                    {mediaFiles[idx] && mediaFiles[idx].type.startsWith("image/") ? (
-                      <Image src={preview} alt="Preview" className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" width={160} height={128} />
-                    ) : mediaFiles[idx] && mediaFiles[idx].type.startsWith("video/") ? (
-                      <video src={preview} controls className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" />
-                    ) : null}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMedia(idx)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-80 hover:opacity-100 focus:outline-none"
-                      aria-label="Remove file"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
+              <div className="mt-2">
+                <div className="relative group">
+                  {mediaFiles[0] && mediaFiles[0].type.startsWith("image/") ? (
+                    <Image src={mediaPreviews[0]} alt="Preview" className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" width={160} height={128} />
+                  ) : mediaFiles[0] && mediaFiles[0].type.startsWith("video/") ? (
+                    <video src={mediaPreviews[0]} controls className="max-h-20 xs:max-h-28 sm:max-h-32 rounded w-full object-cover" />
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={handleRemoveMedia}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-80 hover:opacity-100 focus:outline-none"
+                    aria-label="Remove file"
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
             )}
             {error && <div className="text-red-500 text-sm">{error}</div>}
