@@ -15,7 +15,7 @@ export class PostsController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('media', 5, {
-    storage, // use Cloudinary storage
+    storage,
   }))
   async createPost(
     @Body() createPostDto: CreatePostDto,
@@ -37,7 +37,6 @@ export class PostsController {
         media
       );
     } catch (error) {
-      console.error('Error creating post:', error);
       throw error;
     }
   }

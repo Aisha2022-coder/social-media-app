@@ -5,7 +5,6 @@ import axios from "@/lib/axios";
 import { useToast } from "@/components/Toast";
 import Image from "next/image";
 
-// TODO: Define Comment type properly
 interface Comment {
   _id: string;
   author: { username: string };
@@ -21,7 +20,7 @@ interface PostCardProps {
     author: string;
     createdAt: string;
     media?: { url: string; type: string }[];
-    likes?: string[]; // array of user IDs
+    likes?: string[];
   };
 }
 

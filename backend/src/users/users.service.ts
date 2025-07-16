@@ -34,54 +34,66 @@ export class UsersService {
   }
 
   async followUser(currentUserId: string, targetUserId: string) {
-    if (currentUserId === targetUserId) {
-      return { message: 'You cannot follow yourself.' };
+    const currentUser = await this.userModel.findById(currentUserId);
+    const targetUser = await this.userModel.findById(targetUserId);
+    
+    if (!currentUser || !targetUser) {
+      throw new Error('User not found');
     }
-    // Add targetUserId to current user's following, and currentUserId to target user's followers
-    await this.userModel.updateOne(
-      { _id: currentUserId, following: { $ne: targetUserId } },
-      { $push: { following: targetUserId } }
-    );
-    await this.userModel.updateOne(
-      { _id: targetUserId, followers: { $ne: currentUserId } },
-      { $push: { followers: currentUserId } }
-    );
-    // Notify the followed user
+    
+    if (currentUser.following.includes(targetUserId)) {
+      throw new Error('Already following this user');
+    }
+    
+    currentUser.following.push(targetUserId);
+    targetUser.followers.push(currentUserId);
+    
+    await currentUser.save();
+    await targetUser.save();
+    
     await this.notificationsService.createNotification(
       targetUserId,
       'follow',
-      { fromUser: currentUserId }
+      { fromUser: currentUserId, fromUsername: currentUser.username, fromProfilePicture: currentUser.profilePicture }
     );
-    return { message: 'Followed user.' };
+    
+    return { message: 'Successfully followed user' };
   }
 
   async unfollowUser(currentUserId: string, targetUserId: string) {
-    if (currentUserId === targetUserId) {
-      return { message: 'You cannot unfollow yourself.' };
+    const currentUser = await this.userModel.findById(currentUserId);
+    const targetUser = await this.userModel.findById(targetUserId);
+    
+    if (!currentUser || !targetUser) {
+      throw new Error('User not found');
     }
-    // Remove targetUserId from current user's following, and currentUserId from target user's followers
-    await this.userModel.updateOne(
-      { _id: currentUserId },
-      { $pull: { following: targetUserId } }
-    );
-    await this.userModel.updateOne(
-      { _id: targetUserId },
-      { $pull: { followers: currentUserId } }
-    );
-    return { message: 'Unfollowed user.' };
+    
+    if (!currentUser.following.includes(targetUserId)) {
+      throw new Error('Not following this user');
+    }
+    
+    currentUser.following = currentUser.following.filter(id => id !== targetUserId);
+    targetUser.followers = targetUser.followers.filter(id => id !== currentUserId);
+    
+    await currentUser.save();
+    await targetUser.save();
+    
+    return { message: 'Successfully unfollowed user' };
   }
 
   async updateProfilePicture(userId: string, profilePicture: string): Promise<any> {
     return this.userModel.findByIdAndUpdate(userId, { profilePicture }, { new: true }).exec();
   }
 
-  async getSuggestedUsers(userId: string): Promise<any[]> {
-    const user = await this.userModel.findById(userId);
-    if (!user) return [];
-    // Exclude users already followed and self
+  async getSuggestedUsers(currentUserId: string) {
+    const currentUser = await this.userModel.findById(currentUserId);
+    if (!currentUser) {
+      throw new Error('User not found');
+    }
+    
     return this.userModel.find({
-      _id: { $nin: [...user.following, userId] }
-    }).select('-password').exec();
+      _id: { $nin: [...currentUser.following, currentUserId] }
+    }).limit(10);
   }
 }
 

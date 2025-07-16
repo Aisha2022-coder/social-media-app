@@ -67,15 +67,10 @@ export class UsersController {
   @Post('me/profile-picture')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file', {
-    storage, // use Cloudinary storage
+    storage,
   }))
-  async uploadProfilePicture(@Req() req, @UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new Error('No file uploaded');
-    }
-    // file.path is the Cloudinary URL
-    const profilePicture = file.path;
-    await this.usersService.updateProfilePicture(req.user.userId, profilePicture);
-    return { profilePicture };
+  async updateProfilePicture(@UploadedFile() file: Express.Multer.File, @Req() req) {
+    const user = await this.usersService.updateProfilePicture(req.user.userId, file.path);
+    return { profilePicture: user.profilePicture };
   }
 }

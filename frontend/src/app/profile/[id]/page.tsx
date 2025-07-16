@@ -46,8 +46,6 @@ export default function OtherUserProfilePage() {
     if (!ids.length) return [];
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/by-ids?ids=${ids.join(',')}`);
-      console.log('Requested IDs:', ids);
-      console.log('Fetched users:', res.data);
       return res.data;
     } catch {
       return [];
@@ -73,9 +71,16 @@ export default function OtherUserProfilePage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) return;
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`).then(res => {
+      setCurrentUserId(res.data._id);
+    }).catch(() => setCurrentUserId(null));
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
     if (!token || !id) return;
     setLoading(true);
-    // Get current user id
     axios
       .get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },

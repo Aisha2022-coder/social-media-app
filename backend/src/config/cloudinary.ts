@@ -10,7 +10,7 @@ cloudinary.config({
 export const storage = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => ({
-    folder: 'social-media-app', // Folder in your Cloudinary account
+    folder: 'social-media-app',
     allowed_formats: [
       'jpg', 'jpeg', 'png', 'webp', 'gif', // images
       'mp4', 'mov', 'avi', 'webm', 'mkv', // videos

@@ -1,7 +1,7 @@
 # Social Media App
 
-A full-stack social media web application built for the SDE Internship Assessment, featuring authentication, post creation, following/unfollowing users, and a personalized timeline.  
-Built with **NestJS**, **Next.js (App Router)**, **MongoDB**, and **shadcn/ui**.
+A full-stack social media web application built for the SDE Internship Assessment, featuring authentication, post creation with media uploads, following/unfollowing users, and a personalized timeline.  
+Built with **NestJS**, **Next.js (App Router)**, **MongoDB**, **Cloudinary**, and **shadcn/ui**.
 
 ---
 
@@ -11,6 +11,7 @@ Built with **NestJS**, **Next.js (App Router)**, **MongoDB**, and **shadcn/ui**.
 - **NestJS** (Node.js framework)
 - **MongoDB** (with Mongoose ODM)
 - **JWT** Authentication (Passport.js)
+- **Cloudinary** (for media storage and optimization)
 - **Multer** (for file uploads)
 
 ### Frontend
@@ -31,24 +32,27 @@ Built with **NestJS**, **Next.js (App Router)**, **MongoDB**, and **shadcn/ui**.
 
 - **User Profiles**
   - View user profiles
-  - Upload profile pictures
+  - Upload profile pictures (stored on Cloudinary)
 
 - **Follow/Unfollow**
   - Follow and unfollow other users
   - Followers and following lists
 
 - **Post Creation**
-  - Authenticated users can create posts (title, description)
-  - Posts linked to user profiles
+  - Authenticated users can create posts with text and media
+  - Support for images and videos (stored on Cloudinary)
+  - Media optimization and transformation
 
 - **Timeline Feed**
   - See posts from users you follow, sorted by newest first
+  - Display media content with optimized loading
 
 - **Suggested Users**
   - Get suggestions for new users to follow
 
 - **Clean UI**
   - Responsive, modern design using shadcn/ui and Tailwind CSS
+  - Optimized image loading with Next.js Image component
 
 ---
 
@@ -62,8 +66,9 @@ social-media-app/
       users/
       posts/
       feed/
+      config/
+        cloudinary.ts  # Cloudinary configuration
       main.ts
-    uploads/    # Profile pictures & post images
   frontend/     # Next.js (App Router)
     src/
       app/
@@ -105,6 +110,9 @@ npm install
   MONGODB_URI=mongodb://localhost:27017/social-media
   JWT_SECRET=your_jwt_secret
   JWT_EXPIRATION=1h
+  CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+  CLOUDINARY_API_KEY=your_cloudinary_api_key
+  CLOUDINARY_API_SECRET=your_cloudinary_api_secret
   ```
 
 - Start the backend server:
@@ -121,13 +129,34 @@ npm install
 npx shadcn-ui@latest init
 ```
 
+- Create a `.env.local` file in `frontend/`:
+
+  ```
+  NEXT_PUBLIC_API_URL=http://localhost:5000
+  ```
+
 - Start the frontend server:
 
   ```bash
   npm run dev
   ```
 
-### 4. Open in Browser
+### 4. Cloudinary Setup
+
+1. **Create a Cloudinary Account**
+   - Go to [cloudinary.com](https://cloudinary.com) and sign up
+   - Get your Cloud Name, API Key, and API Secret from the dashboard
+
+2. **Configure Environment Variables**
+   - Add your Cloudinary credentials to the backend `.env` file
+   - The app will automatically create a `social-media-app` folder in your Cloudinary account
+
+3. **Media Upload Features**
+   - Profile pictures are uploaded to Cloudinary
+   - Post media (images/videos) are stored and optimized on Cloudinary
+   - Automatic image transformations (resize, crop) are applied
+
+### 5. Open in Browser
 
 - Frontend: [http://localhost:3000](http://localhost:3000)
 - Backend API: [http://localhost:5000](http://localhost:5000) (or your configured port)
@@ -137,15 +166,17 @@ npx shadcn-ui@latest init
 ## 🧪 Testing
 
 - Use Postman or Thunder Client to test backend APIs.
-- Test frontend flows: login, signup, timeline, create post, follow/unfollow.
+- Test frontend flows: login, signup, timeline, create post with media, follow/unfollow.
+- Test media uploads: profile pictures and post media.
 
 ---
 
 ## ✅ Submission Checklist
 
-- [x] Backend: JWT auth, MongoDB, all APIs
-- [x] Frontend: Auth, timeline, post creation, follow/unfollow
+- [x] Backend: JWT auth, MongoDB, Cloudinary integration, all APIs
+- [x] Frontend: Auth, timeline, post creation with media, follow/unfollow
 - [x] Clean UI with shadcn/ui
+- [x] Media upload and optimization with Cloudinary
 - [x] All features tested and demo-ready
 
 ---

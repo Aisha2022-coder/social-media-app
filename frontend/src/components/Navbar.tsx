@@ -1,15 +1,14 @@
 "use client";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
 import axios from "@/lib/axios";
 import Image from "next/image";
 
-// TODO: Define Notification type properly
 interface Notification {
   _id: string;
   type: string;
-  data: Record<string, unknown>;
+  data: any;
   read: boolean;
   createdAt: string;
 }
@@ -117,10 +116,6 @@ export default function Navbar() {
       </div>
     );
   };
-
-  // Responsive breakpoint: 646px width or 698px height
-  // Tailwind: use max-w-[646px] and max-h-[698px] for custom breakpoints
-  // We'll use sm:hidden (default sm=640px) and add a custom style for 646px/698px
 
   return (
     <nav className="w-full bg-white border-b shadow flex items-center justify-between px-6 py-3 mb-6 relative">
