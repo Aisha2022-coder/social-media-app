@@ -5,10 +5,17 @@ import { useRouter } from "next/navigation";
 import axios from "@/lib/axios";
 import Image from "next/image";
 
+interface NotificationData {
+  fromUser?: string;
+  fromUsername?: string;
+  fromProfilePicture?: string;
+  postId?: string;
+}
+
 interface Notification {
   _id: string;
   type: string;
-  data: any;
+  data: NotificationData;
   read: boolean;
   createdAt: string;
 }
@@ -71,8 +78,7 @@ export default function Navbar() {
     let icon = "";
     let text = "";
     let link = undefined;
-    // Type assertions for known notification data shape
-    const data = n.data as { fromUser?: string; fromUsername?: string; fromProfilePicture?: string; postId?: string };
+    const data = n.data;
     const fromUser = data.fromUser;
     const fromUsername = data.fromUsername;
     const fromProfilePicture = data.fromProfilePicture;
