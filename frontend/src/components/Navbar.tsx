@@ -14,7 +14,6 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Try to get userId from localStorage (set by /users/me API)
     const token = localStorage.getItem("token");
     if (!token) return;
     fetch("http://localhost:3000/users/me", {
@@ -25,7 +24,6 @@ export default function Navbar() {
       .catch(() => setUserId(null));
   }, []);
 
-  // Fetch notifications when dropdown is opened
   useEffect(() => {
     if (showDropdown) {
       axios.get("/notifications").then(res => {
@@ -35,7 +33,6 @@ export default function Navbar() {
     }
   }, [showDropdown]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {

@@ -204,7 +204,6 @@ export default function ProfilePage() {
                 )}
               </div>
             </div>
-            {/* Placeholder for Follow/Unfollow button for other users */}
           </div>
         )}
         <h2 className="text-xl font-semibold mb-2">Your Posts</h2>

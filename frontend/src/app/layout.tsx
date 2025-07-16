@@ -22,7 +22,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Only show Navbar if not on /login or /signup
   const pathname = usePathname();
   const showNavbar = pathname !== "/login" && pathname !== "/signup";
 

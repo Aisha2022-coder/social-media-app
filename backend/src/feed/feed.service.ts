@@ -14,7 +14,6 @@ export class FeedService {
   async getTimelinePosts(userId: string) {
     const user = await this.userModel.findById(userId).exec();
     if (!user) return [];
-    // Convert following IDs to ObjectIds for correct matching
     const followingObjectIds = user.following.map(id => new Types.ObjectId(id));
     return this.postModel
       .find({ author: { $in: followingObjectIds } })

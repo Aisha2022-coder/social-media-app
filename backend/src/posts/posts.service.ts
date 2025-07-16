@@ -40,7 +40,6 @@ export class PostsService {
       post.likes = post.likes.filter((id: Types.ObjectId) => !id.equals(userObjectId));
     } else {
       post.likes.push(userObjectId);
-      // Notify post author if not the liker
       if (post.author && !post.author.equals(userObjectId)) {
         await this.notificationsService.createNotification(
           post.author.toString(),
@@ -60,7 +59,6 @@ export class PostsService {
       text,
     });
     await comment.save();
-    // Notify post author if not the commenter
     const post = await this.postModel.findById(postId);
     if (post && post.author && !post.author.equals(userId)) {
       await this.notificationsService.createNotification(

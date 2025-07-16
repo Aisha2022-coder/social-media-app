@@ -12,7 +12,6 @@ export class NotificationsService {
   ) {}
 
   async createNotification(userId: string, type: string, data: any) {
-    // If fromUser is present and is an ID, fetch username and profilePicture
     let enhancedData = { ...data };
     if (data.fromUser) {
       const user = await this.userModel.findById(data.fromUser).select('username profilePicture');

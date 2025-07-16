@@ -18,7 +18,7 @@ export class Post {
     raw([
       {
         url: { type: String },
-        type: { type: String }, // 'image', 'video', 'gif'
+        type: { type: String }, 
       },
     ])
   )

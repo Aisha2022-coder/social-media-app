@@ -41,7 +41,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   useEffect(() => {
     if (showDetail) fetchComments();
-    // eslint-disable-next-line
   }, [showDetail]);
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -60,7 +59,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   useEffect(() => {
-    // Fetch current user ID
     axios.get("/users/me").then(res => setCurrentUserId(res.data._id)).catch(() => setCurrentUserId(null));
   }, []);
 

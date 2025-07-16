@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserDocument } from '../users/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +18,7 @@ export class AuthService {
             password: hashedPassword,
         });
 
-        return this.generateTokens(String(user._id)); // ✅ Fix here
+        return this.generateTokens(String(user._id)); 
     }
 
     async login(email: string, password: string) {

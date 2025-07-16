@@ -24,7 +24,7 @@ export default function LoginPage() {
       const res = await axios.post("/auth/login", form)
 
       const { accessToken } = res.data
-      localStorage.setItem("token", accessToken) // temporarily store token
+      localStorage.setItem("token", accessToken) 
       showToast("Login successful!", "success");
       router.push("/timeline")
     } catch (err: any) {

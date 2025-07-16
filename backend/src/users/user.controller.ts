@@ -1,5 +1,3 @@
-// src/users/user.controller.ts
-
 import { Controller, Get, Req, UseGuards, Post, Param, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
@@ -37,7 +35,6 @@ export class UsersController {
   async getUsersByIds(@Query('ids') ids: string) {
     if (!ids) return [];
     const idArray = ids.split(',').map(id => id.trim()).filter(Boolean);
-    // Only keep valid 24-char hex strings (MongoDB ObjectId)
     const validIds = idArray.filter(id => /^[a-fA-F0-9]{24}$/.test(id));
     if (!validIds.length) return [];
     return this.usersService.findByIds(validIds);

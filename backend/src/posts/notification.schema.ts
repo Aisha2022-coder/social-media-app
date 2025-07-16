@@ -9,10 +9,10 @@ export class Notification {
   userId: Types.ObjectId;
 
   @Prop({ required: true })
-  type: string; // 'like', 'comment', 'follow'
+  type: string; 
 
   @Prop({ type: Object })
-  data: any; // e.g., { postId, fromUser, commentId }
+  data: any; 
 
   @Prop({ default: false })
   read: boolean;

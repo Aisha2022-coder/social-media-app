@@ -98,10 +98,8 @@ export default function OtherUserProfilePage() {
         setError(err?.response?.data?.message || "Failed to load profile.");
         setLoading(false);
       });
-    // eslint-disable-next-line
   }, [id, currentUserId]);
 
-  // Update isFollowing when user or currentUserId changes
   useEffect(() => {
     if (user && currentUserId) {
       setIsFollowing(user.followers.includes(currentUserId));
@@ -126,11 +124,10 @@ export default function OtherUserProfilePage() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
-      // Refetch user info
+      
       const res = await axios.get(`http://localhost:3000/users/${id}`);
       setUser(res.data);
     } catch (err) {
-      // Optionally show error
     } finally {
       setFollowLoading(false);
     }

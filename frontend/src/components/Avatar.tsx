@@ -1,7 +1,6 @@
 "use client";
 
 export default function Avatar({ username, size = 40 }: { username: string; size?: number }) {
-  // Generate a color based on the username
   function stringToColor(str: string) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
