@@ -22,13 +22,12 @@ export default function LoginPage() {
     try {
       setLoading(true)
       const res = await axios.post("/auth/login", form)
-
       const { accessToken } = res.data
       localStorage.setItem("token", accessToken) 
       showToast("Login successful!", "success");
       router.push("/timeline")
-    } catch (err: any) {
-      showToast(err?.response?.data?.message || "Login failed", "error");
+    } catch (error) {
+      showToast((error as any)?.response?.data?.message || "Login failed", "error");
     } finally {
       setLoading(false)
     }

@@ -3,6 +3,15 @@ import Avatar from "@/components/Avatar";
 import Modal from "@/components/Modal";
 import axios from "@/lib/axios";
 import { useToast } from "@/components/Toast";
+import Image from "next/image";
+
+// TODO: Define Comment type properly
+interface Comment {
+  _id: string;
+  author: { username: string };
+  text: string;
+  createdAt: string;
+}
 
 interface PostCardProps {
   post: {
@@ -22,11 +31,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [likes, setLikes] = useState<string[]>(post.likes || []);
   const [likeLoading, setLikeLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState("");
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentSubmitting, setCommentSubmitting] = useState(false);
-  const { showToast } = useToast ? useToast() : { showToast: () => {} };
+  const { showToast } = useToast();
 
   const fetchComments = async () => {
     setCommentsLoading(true);
@@ -51,9 +60,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       await axios.post(`/posts/${post._id}/comments`, { text: commentText });
       setCommentText("");
       fetchComments();
-      showToast && showToast("Comment added!", "success");
+      showToast("Comment added!", "success");
     } catch {
-      showToast && showToast("Failed to add comment.", "error");
+      showToast("Failed to add comment.", "error");
     }
     setCommentSubmitting(false);
   };
@@ -94,10 +103,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         <span className="font-semibold text-sm sm:text-base md:text-lg break-all">{post.author}</span>
       </div>
       {hasMedia && post.media![0].type === "image" && (
-        <img
+        <Image
           src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![0].url}`}
           alt="Post media"
           className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
+          width={400}
+          height={200}
         />
       )}
       {hasMedia && post.media![0].type === "video" && (
@@ -108,10 +119,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         />
       )}
       {hasMedia && post.media![0].type === "gif" && (
-        <img
+        <Image
           src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![0].url}`}
           alt="Post gif"
           className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
+          width={400}
+          height={200}
         />
       )}
       <h2 className="text-sm sm:text-base md:text-lg font-semibold break-words">{post.title}</h2>
@@ -153,7 +166,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                       aria-label={`Show media ${idx + 1}`}
                     >
                       {m.type === "image" || m.type === "gif" ? (
-                        <img src={`${process.env.NEXT_PUBLIC_API_URL}${m.url}`} alt="thumb" className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" />
+                        <Image src={`${process.env.NEXT_PUBLIC_API_URL}${m.url}`} alt="thumb" className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" width={40} height={40} />
                       ) : m.type === "video" ? (
                         <video src={`${process.env.NEXT_PUBLIC_API_URL}${m.url}`} className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" />
                       ) : null}
@@ -162,10 +175,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 </div>
                 <div className="flex justify-center">
                   {post.media![activeMediaIdx].type === "image" || post.media![activeMediaIdx].type === "gif" ? (
-                    <img
+                    <Image
                       src={`${process.env.NEXT_PUBLIC_API_URL}${post.media![activeMediaIdx].url}`}
                       alt="Post media large"
                       className="max-h-28 xs:max-h-40 sm:max-h-80 w-full object-contain rounded"
+                      width={400}
+                      height={200}
                     />
                   ) : post.media![activeMediaIdx].type === "video" ? (
                     <video

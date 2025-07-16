@@ -1,15 +1,24 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "@/lib/axios";
-import { useRef } from "react";
+import Image from "next/image";
+
+// TODO: Define Notification type properly
+interface Notification {
+  _id: string;
+  type: string;
+  data: any;
+  read: boolean;
+  createdAt: string;
+}
 
 export default function Navbar() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -29,7 +38,7 @@ export default function Navbar() {
     if (showDropdown) {
       axios.get("/notifications").then(res => {
         setNotifications(res.data);
-        setUnreadCount(res.data.filter((n: any) => !n.read).length);
+        setUnreadCount(res.data.filter((n: Notification) => !n.read).length);
       });
     }
   }, [showDropdown]);
@@ -59,13 +68,13 @@ export default function Navbar() {
     setUnreadCount(0);
   };
 
-  const renderNotification = (n: any) => {
+  const renderNotification = (n: Notification) => {
     let icon = "";
     let text = "";
     let link = undefined;
-    let fromUser = n.data?.fromUser;
-    let fromUsername = n.data?.fromUsername;
-    let fromProfilePicture = n.data?.fromProfilePicture;
+    const fromUser = n.data?.fromUser;
+    const fromUsername = n.data?.fromUsername;
+    const fromProfilePicture = n.data?.fromProfilePicture;
     if (n.type === "like") {
       icon = "♥";
       text = fromUsername ? `${fromUsername} liked your post.` : "Someone liked your post.";
@@ -94,7 +103,7 @@ export default function Navbar() {
         <span className="text-lg mt-0.5">{icon}</span>
         {fromUsername && (
           fromProfilePicture ? (
-            <img src={`${process.env.NEXT_PUBLIC_API_URL}${fromProfilePicture}`} alt={fromUsername} className="h-8 w-8 rounded-full object-cover border" />
+            <Image src={`${process.env.NEXT_PUBLIC_API_URL}${fromProfilePicture}`} alt={fromUsername} className="h-8 w-8 rounded-full object-cover border" width={32} height={32} />
           ) : (
             <span className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-base" style={{minWidth:32}}>{fromUsername.charAt(0).toUpperCase()}</span>
           )

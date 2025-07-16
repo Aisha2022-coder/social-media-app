@@ -61,8 +61,8 @@ export default function CreatePostPage() {
       });
       showToast("Post created!", "success");
       router.push("/timeline");
-    } catch (err: any) {
-      showToast(err?.response?.data?.message || "Failed to create post.", "error");
+    } catch (error) {
+      showToast((error as any)?.response?.data?.message || "Failed to create post.", "error");
     } finally {
       setLoading(false);
       setMediaFiles([]);

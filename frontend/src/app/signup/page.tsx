@@ -24,8 +24,8 @@ export default function SignupPage() {
       await axios.post("/auth/signup", form)
       showToast("Signup successful! Please login.", "success")
       router.push("/login")
-    } catch (err: any) {
-      showToast(err?.response?.data?.message || "Signup failed", "error")
+    } catch (error) {
+      showToast((error as any)?.response?.data?.message || "Signup failed", "error")
     } finally {
       setLoading(false)
     }
