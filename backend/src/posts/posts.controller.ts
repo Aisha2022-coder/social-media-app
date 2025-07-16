@@ -5,6 +5,8 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { storage } from '../config/cloudinary';
+import multer from 'multer';
 
 @Controller('posts')
 export class PostsController {
@@ -13,21 +15,7 @@ export class PostsController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('media', 5, {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname);
-        const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-        cb(null, filename);
-      },
-    }),
-    fileFilter: (req, file, cb) => {
-      if (!file.mimetype.startsWith('image/') && !file.mimetype.startsWith('video/') && !file.mimetype.includes('gif')) {
-        return cb(new Error('Only image, video, or gif files are allowed!'), false);
-      }
-      cb(null, true);
-    },
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    storage, // use Cloudinary storage
   }))
   async createPost(
     @Body() createPostDto: CreatePostDto,
@@ -37,7 +25,7 @@ export class PostsController {
     let media: { url: string; type: string }[] = [];
     if (files && files.length > 0) {
       media = files.map(file => ({
-        url: `/uploads/${file.filename}`,
+        url: file.path, // Cloudinary URL
         type: file.mimetype.startsWith('image/') ? 'image' : file.mimetype.startsWith('video/') ? 'video' : file.mimetype.includes('gif') ? 'gif' : 'other',
       }));
     }

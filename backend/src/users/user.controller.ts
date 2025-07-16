@@ -6,6 +6,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { Express } from 'express';
+import { storage } from '../config/cloudinary';
+import multer from 'multer';
 
 @Controller('users')
 export class UsersController {
@@ -65,27 +67,14 @@ export class UsersController {
   @Post('me/profile-picture')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname);
-        const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-        cb(null, filename);
-      },
-    }),
-    fileFilter: (req, file, cb) => {
-      if (!file.mimetype.startsWith('image/')) {
-        return cb(new Error('Only image files are allowed!'), false);
-      }
-      cb(null, true);
-    },
-    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+    storage, // use Cloudinary storage
   }))
   async uploadProfilePicture(@Req() req, @UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new Error('No file uploaded');
     }
-    const profilePicture = `/uploads/${file.filename}`;
+    // file.path is the Cloudinary URL
+    const profilePicture = file.path;
     await this.usersService.updateProfilePicture(req.user.userId, profilePicture);
     return { profilePicture };
   }
