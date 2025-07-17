@@ -3,18 +3,18 @@ import React, { useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
 import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
+import { Post, User } from "@/types/social";
 
 export default function ExplorePage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [suggested, setSuggested] = useState<any[]>([]);
+  const [suggested, setSuggested] = useState<User[]>([]);
   const [suggestedLoading, setSuggestedLoading] = useState(true);
   const [followLoading, setFollowLoading] = useState<string | null>(null);
   const [following, setFollowing] = useState<string[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts(1, true);
@@ -62,10 +62,8 @@ export default function ExplorePage() {
       try {
         const axios = (await import("@/lib/axios")).default;
         const res = await axios.get("/users/me");
-        setUserId(res.data._id);
         setFollowing(res.data.following || []);
       } catch {
-        setUserId(null);
         setFollowing([]);
       }
     }

@@ -5,14 +5,15 @@ import PostCard from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/Modal";
 import { useRouter } from "next/navigation";
+import { User, Post } from "@/types/social";
 
 export default function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = usePromise(params);
-  const [user, setUser] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<null | "followers" | "following">(null);
-  const [modalUsers, setModalUsers] = useState<any[]>([]);
+  const [modalUsers, setModalUsers] = useState<User[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editUsername, setEditUsername] = useState("");
@@ -72,7 +73,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
         setUser(userRes.data);
         const postsRes = await axios.get(`/users/${unwrappedParams.id}/posts`);
         setPosts(postsRes.data);
-      } catch (err) {
+      } catch (err: any) {
         setUser(null);
       } finally {
         setLoading(false);

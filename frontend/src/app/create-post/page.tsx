@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/Toast";
+import Image from "next/image";
 
 export default function CreatePostPage() {
   const [title, setTitle] = useState("");
@@ -40,7 +41,7 @@ export default function CreatePostPage() {
       setMedia([]);
       setMediaPreview([]);
       showToast("Post created successfully!", "success");
-    } catch (err) {
+    } catch {
       setError("Failed to create post. Please try again.");
       showToast("Failed to create post.", "error");
     }
@@ -81,7 +82,7 @@ export default function CreatePostPage() {
               <div className="mt-2 flex flex-wrap gap-2 justify-center">
                 {mediaPreview.map((preview, idx) => (
                   media[idx]?.type.startsWith("image/") ? (
-                    <img key={idx} src={preview} alt="Preview" className="max-h-32 rounded-xl border shadow" />
+                    <Image key={idx} src={preview} alt="Preview" className="max-h-32 rounded-xl border shadow" width={128} height={128} />
                   ) : (
                     <video key={idx} src={preview} controls className="max-h-32 rounded-xl border shadow" />
                   )

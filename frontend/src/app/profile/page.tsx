@@ -4,10 +4,11 @@ import Avatar from "@/components/Avatar";
 import PostCard from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { User, Post } from "@/types/social";
 
 export default function MyProfilePage() {
-  const [user, setUser] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,8 +20,7 @@ export default function MyProfilePage() {
         // Fetch posts for this user
         const postsRes = await (await import("@/lib/axios")).default.get(`/users/${userRes.data._id}/posts`);
         setPosts(postsRes.data);
-      } catch (err: any) {
-        // If error is 401, axios will redirect, so just show spinner
+      } catch {
         if (err?.response?.status === 401) {
           setError(null);
         } else {

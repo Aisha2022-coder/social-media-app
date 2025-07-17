@@ -20,11 +20,20 @@ export default function SignupPage() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
     const payload = { username, email, password };
     try {
-      const response = await axios.post(`${apiUrl}/auth/signup`, payload);
+      await axios.post(`${apiUrl}/auth/signup`, payload);
       router.push("/timeline");
-    } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err &&
+        typeof (err as any).response === "object" &&
+        (err as any).response &&
+        "data" in (err as any).response &&
+        (err as any).response.data &&
+        "message" in (err as any).response.data
+      ) {
+        setError((err as any).response.data.message);
       } else {
         setError("Signup failed. Please try again.");
       }

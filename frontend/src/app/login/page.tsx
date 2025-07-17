@@ -21,7 +21,7 @@ export default function LoginPage() {
       // Save token to localStorage
       localStorage.setItem("token", res.data.accessToken);
       router.push("/timeline");
-    } catch (err) {
+    } catch {
       setError("Invalid email or password.");
     }
     setLoading(false);
