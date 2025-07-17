@@ -173,7 +173,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
 
   // Modal view
   return (
-    <Modal title="Post Details" onClose={onCloseDetail}>
+    <Modal title="Post Details" onClose={onCloseDetail ?? (() => {})}>
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3 mb-2">
           <Avatar username={post.author} size={36} />
