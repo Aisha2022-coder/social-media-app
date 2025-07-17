@@ -93,7 +93,9 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
               <Avatar username={user.username} size={96} />
               <div className="flex-1 flex flex-col gap-2 items-center sm:items-start">
                 <h1 className="text-2xl font-extrabold text-indigo-700">{user.username}</h1>
-                <p className="text-gray-500 text-center sm:text-left">{user.bio}</p>
+                {"bio" in user && typeof user.bio === "string" && user.bio.trim() !== "" ? (
+                  <p className="text-gray-500 text-center sm:text-left">{user.bio}</p>
+                ) : null}
                 <div className="flex gap-4 mt-2">
                   <div className="text-center cursor-pointer" onClick={() => handleOpenModal("followers") }>
                     <div className="font-bold text-indigo-700 text-lg">{user.followers ? user.followers.length : 0}</div>
