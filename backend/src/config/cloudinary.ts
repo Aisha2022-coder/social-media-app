@@ -9,13 +9,16 @@ cloudinary.config({
 
 export const storage = new CloudinaryStorage({
   cloudinary,
-  params: (req, file) => ({
-    folder: 'social-media-app',
-    allowed_formats: [
-      'jpg', 'jpeg', 'png', 'webp', 'gif', // images
-      'mp4', 'mov', 'avi', 'webm', 'mkv', // videos
-    ],
-    resource_type: 'auto', // Allow both images and videos
-    transformation: [{ width: 800, height: 800, crop: 'limit' }],
-  }),
+  params: (req, file) => {
+    const isImage = file.mimetype.startsWith('image/');
+    return {
+      folder: 'social-media-app',
+      allowed_formats: [
+        'jpg', 'jpeg', 'png', 'webp', 'gif',
+        'mp4', 'mov', 'avi', 'webm', 'mkv',
+      ],
+      resource_type: 'auto',
+      ...(isImage && { transformation: [{ width: 800, height: 800, crop: 'limit' }] }),
+    };
+  },
 });

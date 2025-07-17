@@ -1,75 +1,77 @@
-"use client"
-
-import { useState } from "react"
-import axios from "@/lib/axios"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/components/Toast";
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import axios from "axios";
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ username: "", email: "", password: "" })
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const { showToast } = useToast();
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const payload = { username, email, password };
     try {
-      setLoading(true)
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, form)
-      showToast("Signup successful! Please login.", "success")
-      router.push("/login")
-    } catch (error) {
-      showToast((error as unknown as { response?: { data?: { message?: string } } })?.response?.data?.message || "Signup failed", "error")
-    } finally {
-      setLoading(false)
+      const response = await axios.post(`${apiUrl}/auth/signup`, payload);
+      router.push("/timeline");
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Signup failed. Please try again.");
+      }
     }
-  }
+    setLoading(false);
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white p-4">
-      <div className="w-full max-w-md space-y-4 border p-6 rounded-xl shadow">
-        <h2 className="text-2xl font-semibold">Create an Account</h2>
-
-        <label htmlFor="username" className="block text-sm font-medium mb-1">Username</label>
-        <Input
-          id="username"
-          name="username"
-          placeholder="Username"
-          value={form.username}
-          onChange={handleChange}
-        />
-        <label htmlFor="email" className="block text-sm font-medium mb-1 mt-2">Email</label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-        />
-        <label htmlFor="password" className="block text-sm font-medium mb-1 mt-2">Password</label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-        />
-
-        <Button onClick={handleSubmit} disabled={loading} className="w-full" aria-label="Sign Up">
-          {loading ? "Signing up..." : "Sign Up"}
-        </Button>
-        <div className="text-center mt-4 text-sm text-gray-600">
-          Already have an account? <Link href="/login" className="text-blue-600 hover:underline">Login here</Link>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white py-12 px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 flex flex-col gap-6">
+        <h1 className="text-3xl font-extrabold text-indigo-700 text-center">Create Account</h1>
+        <p className="text-gray-500 text-center">Join the community</p>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Username"
+            className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm text-base"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm text-base"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm text-base"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+          <Button type="submit" className="w-full mt-2" disabled={loading}>
+            {loading ? "Signing up..." : "Sign Up"}
+          </Button>
+        </form>
+        <div className="text-center text-sm text-gray-500">
+          Already have an account?{' '}
+          <Link href="/login" className="text-indigo-600 hover:underline font-semibold">Sign in</Link>
         </div>
       </div>
     </div>
-  )
+  );
 }

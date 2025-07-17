@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export default function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -12,7 +13,9 @@ export default function Modal({ title, onClose, children }: { title: string; onC
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  return (
+  if (typeof window === "undefined") return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       onClick={onClose}
@@ -34,6 +37,7 @@ export default function Modal({ title, onClose, children }: { title: string; onC
         <h2 className="text-lg font-semibold mb-4 text-center">{title}</h2>
         <div>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 } 

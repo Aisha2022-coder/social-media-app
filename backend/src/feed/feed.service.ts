@@ -11,13 +11,16 @@ export class FeedService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  async getTimelinePosts(userId: string) {
-    const user = await this.userModel.findById(userId).exec();
+  async getTimelinePosts(userId: string, page = 1, limit = 10) {
+    const user = await this.userModel.findById(userId).lean();
     if (!user) return [];
-    const followingObjectIds = user.following.map(id => new Types.ObjectId(id));
+    const followingObjectIds = (user.following || []).map(id => new Types.ObjectId(id));
     return this.postModel
       .find({ author: { $in: followingObjectIds } })
       .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean()
       .exec();
   }
 } 

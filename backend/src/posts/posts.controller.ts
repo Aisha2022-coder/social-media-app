@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, Get, UseInterceptors, UploadedFile, UploadedFiles, Param } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Get, UseInterceptors, UploadedFile, UploadedFiles, Param, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -26,16 +26,17 @@ export class PostsController {
       let media: { url: string; type: string }[] = [];
       if (files && files.length > 0) {
         media = files.map(file => ({
-          url: file.path, // Cloudinary URL
+          url: file.path,
           type: file.mimetype.startsWith('image/') ? 'image' : file.mimetype.startsWith('video/') ? 'video' : file.mimetype.includes('gif') ? 'gif' : 'other',
         }));
       }
-      return this.postsService.createPost(
+      const result = await this.postsService.createPost(
         createPostDto.title,
         createPostDto.description,
         req.user.userId,
         media
       );
+      return result;
     } catch (error) {
       throw error;
     }
@@ -59,12 +60,18 @@ export class PostsController {
   }
 
   @Get()
-  async getAllPosts() {
-    return this.postsService.getAllPosts();
+  async getAllPosts(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.postsService.getAllPosts(Number(page), Number(limit));
   }
 
   @Get('trending')
   async getTrendingPosts() {
     return this.postsService.getTrendingPosts();
+  }
+
+  @Get('timeline')
+  @UseGuards(AuthGuard('jwt'))
+  async getTimeline(@Req() req) {
+    return this.postsService.getTimelinePosts(req.user.userId);
   }
 } 

@@ -1,221 +1,89 @@
 "use client";
-
-import { useEffect, useState, useRef } from "react";
-import axios from "@/lib/axios";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import PostCard from "@/components/PostCard";
+import React, { useEffect, useState } from "react";
 import Avatar from "@/components/Avatar";
-import Spinner from "@/components/Spinner";
-import EmptyState from "@/components/EmptyState";
-import { useToast } from "@/components/Toast";
-import Modal from "@/components/Modal";
-import Image from "next/image";
+import PostCard from "@/components/PostCard";
+import { Button } from "@/components/ui/button";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  followers: string[];
-  following: string[];
-  profilePicture?: string;
-}
-
-interface Post {
-  _id: string;
-  title: string;
-  description: string;
-  author: string;
-  createdAt: string;
-  media?: { url: string; type: string }[];
-  likes?: string[];
-}
-
-export default function ProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
+export default function MyProfilePage() {
+  const [user, setUser] = useState<any>(null);
+  const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const { showToast } = useToast();
-  const [showFollowers, setShowFollowers] = useState(false);
-  const [showFollowing, setShowFollowing] = useState(false);
-  const [followerUsers, setFollowerUsers] = useState<User[]>([]);
-  const [followingUsers, setFollowingUsers] = useState<User[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    setLoading(true);
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        setUser(res.data);
-        return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${res.data._id}/posts`);
-      })
-      .then((res) => {
-        setPosts(res.data);
+    async function fetchProfile() {
+      try {
+        const userRes = await (await import("@/lib/axios")).default.get("/users/me");
+        setUser(userRes.data);
+        // Fetch posts for this user
+        const postsRes = await (await import("@/lib/axios")).default.get(`/users/${userRes.data._id}/posts`);
+        setPosts(postsRes.data);
+      } catch (err: any) {
+        // If error is 401, axios will redirect, so just show spinner
+        if (err?.response?.status === 401) {
+          setError(null);
+        } else {
+          setError("User not found.");
+        }
+        setUser(null);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setError("Failed to load profile.");
-        setLoading(false);
-      });
-  }, []);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0] || !user) return;
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    setUploading(true);
-    try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/me/profile-picture`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setUser({ ...user, profilePicture: res.data.profilePicture });
-      showToast("Profile picture updated!", "success");
-    } catch {
-      showToast("Failed to upload profile picture.", "error");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      }
     }
-  };
-
-  const fetchUsersByIds = async (ids: string[]) => {
-    if (!ids.length) return [];
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/by-ids?ids=${ids.join(',')}`);
-    return res.data;
-  };
-
-  const handleShowFollowers = async () => {
-    if (!user) return;
-    setShowFollowers(true);
-    setFollowerUsers(await fetchUsersByIds(user.followers));
-  };
-  const handleShowFollowing = async () => {
-    if (!user) return;
-    setShowFollowing(true);
-    setFollowingUsers(await fetchUsersByIds(user.following));
-  };
-
-  if (loading) {
-    return (
-      <ProtectedRoute>
-        <div className="flex justify-center items-center h-screen"><Spinner size={48} /></div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (error) {
-    return (
-      <ProtectedRoute>
-        <div className="flex justify-center items-center h-screen text-red-500">{error}</div>
-      </ProtectedRoute>
-    );
-  }
+    fetchProfile();
+  }, []);
 
   return (
     <ProtectedRoute>
-      <div className="max-w-xl w-full mx-auto p-2 sm:p-4 space-y-4">
-        <h1 className="text-2xl font-bold mb-2">Profile</h1>
-        {user && (
-          <div className="border rounded-lg p-4 mb-4 flex flex-col sm:flex-row items-center gap-4 shadow-sm hover:shadow-lg transition-shadow bg-white">
-            <div className="relative">
-              {user.profilePicture ? (
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${user.profilePicture}`}
-                  alt="Profile"
-                  className="rounded-full object-cover"
-                  width={48}
-                  height={48}
-                />
-              ) : (
-                <Avatar username={user.username} size={48} />
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-                id="profile-picture-upload"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-1 text-xs shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                aria-label="Upload profile picture"
-                disabled={uploading}
-                style={{ fontSize: 10 }}
-              >
-                {uploading ? "..." : "✎"}
-              </button>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-8 px-2">
+        <div className="max-w-3xl mx-auto flex flex-col gap-8">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
             </div>
-            <div className="text-center sm:text-left">
-              <div className="font-semibold text-xl">{user.username}</div>
-              <div>Email: {user.email}</div>
-              <div>
-                <button
-                  className="text-blue-600 hover:underline focus:outline-none disabled:text-gray-400 disabled:cursor-not-allowed"
-                  onClick={handleShowFollowers}
-                  disabled={user.followers.length === 0}
-                  title={user.followers.length === 0 ? "No followers yet" : "View followers"}
-                >
-                  Followers: {user.followers.length}
-                </button>
-                {showFollowers && (
-                  <Modal title="Followers" onClose={() => setShowFollowers(false)}>
-                    {followerUsers.length === 0 ? (
-                      <div>No followers yet.</div>
-                    ) : (
-                      followerUsers.map((u) => (
-                        <div key={u._id} className="flex items-center gap-2 mb-2">
-                          <Avatar username={u.username} size={28} />
-                          <span>{u.username}</span>
-                        </div>
-                      ))
-                    )}
-                  </Modal>
+          ) : user ? (
+            <>
+              <div className="bg-white rounded-2xl shadow-xl p-8 flex flex-col sm:flex-row items-center gap-6">
+                <Avatar username={user.username} size={96} />
+                <div className="flex-1 flex flex-col gap-2 items-center sm:items-start">
+                  <h1 className="text-2xl font-extrabold text-indigo-700">{user.username}</h1>
+                  <p className="text-gray-500 text-center sm:text-left">{user.bio}</p>
+                  <div className="flex gap-4 mt-2">
+                    <div className="text-center">
+                      <div className="font-bold text-indigo-700 text-lg">{user.followers}</div>
+                      <div className="text-xs text-gray-400">Followers</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-indigo-700 text-lg">{user.following}</div>
+                      <div className="text-xs text-gray-400">Following</div>
+                    </div>
+                  </div>
+                  <Button className="mt-4 w-32" variant="primary">Edit Profile</Button>
+                </div>
+              </div>
+              <div className="mt-8">
+                <h2 className="text-xl font-bold text-indigo-700 mb-4">Posts</h2>
+                {posts.length === 0 ? (
+                  <div className="text-center text-gray-400 py-12 text-lg">No posts yet.</div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {posts.map(post => (
+                      <PostCard key={post._id} post={post} />
+                    ))}
+                  </div>
                 )}
               </div>
-              <div>
-                <button
-                  className="text-blue-600 hover:underline focus:outline-none disabled:text-gray-400 disabled:cursor-not-allowed"
-                  onClick={handleShowFollowing}
-                  disabled={user.following.length === 0}
-                  title={user.following.length === 0 ? "Not following anyone yet" : "View following"}
-                >
-                  Following: {user.following.length}
-                </button>
-                {showFollowing && (
-                  <Modal title="Following" onClose={() => setShowFollowing(false)}>
-                    {followingUsers.length === 0 ? (
-                      <div>Not following anyone yet.</div>
-                    ) : (
-                      followingUsers.map((u) => (
-                        <div key={u._id} className="flex items-center gap-2 mb-2">
-                          <Avatar username={u.username} size={28} />
-                          <span>{u.username}</span>
-                        </div>
-                      ))
-                    )}
-                  </Modal>
-                )}
-              </div>
+            </>
+          ) : error ? (
+            <div className="text-center text-gray-400 py-12 text-lg">{error}</div>
+          ) : (
+            // If no user and no error, show spinner (likely redirecting)
+            <div className="flex justify-center py-12">
+              <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
             </div>
-          </div>
-        )}
-        <h2 className="text-xl font-semibold mb-2">Your Posts</h2>
-        {posts.length === 0 ? (
-          <EmptyState message="No posts yet." />
-        ) : (
-          posts.map((post) => (
-            <PostCard key={post._id} post={{ ...post, media: post.media || [], likes: post.likes || [] }} />
-          ))
-        )}
+          )}
+        </div>
       </div>
     </ProtectedRoute>
   );

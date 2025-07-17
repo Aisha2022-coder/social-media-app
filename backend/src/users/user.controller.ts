@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards, Post, Param, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, Post, Param, UseInterceptors, UploadedFile, Query, Body, Patch } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { PostsService } from '../posts/posts.service';
@@ -72,5 +72,11 @@ export class UsersController {
   async updateProfilePicture(@UploadedFile() file: Express.Multer.File, @Req() req) {
     const user = await this.usersService.updateProfilePicture(req.user.userId, file.path);
     return { profilePicture: user.profilePicture };
+  }
+
+  @Patch('me')
+  @UseGuards(AuthGuard('jwt'))
+  async updateMe(@Req() req, @Body() body) {
+    return this.usersService.updateMe(req.user.userId, body);
   }
 }

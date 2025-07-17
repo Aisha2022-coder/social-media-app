@@ -1,71 +1,74 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import axios from "@/lib/axios";
+import React, { useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
-import { useRouter } from "next/navigation";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import Spinner from "@/components/Spinner";
-import EmptyState from "@/components/EmptyState";
-
-interface Post {
-  _id: string;
-  title: string;
-  description: string;
-  author: string;
-  createdAt: string;
-  media?: { url: string; type: string }[];
-  likes?: string[];
-}
 
 export default function TimelinePage() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
+    fetchTimeline(1, true);
+  }, []);
+
+  const fetchTimeline = async (pageNum = 1, initial = false) => {
+    if (!initial) setLoadingMore(true);
+    try {
+      const axios = (await import("@/lib/axios")).default;
+      const res = await axios.get(`/posts/timeline?page=${pageNum}&limit=10`);
+      if (res.data.length < 10) setHasMore(false);
+      setPosts(prev => initial ? res.data : [...prev, ...res.data]);
+    } catch {
+      if (initial) setPosts([]);
+    } finally {
+      if (initial) setLoading(false);
+      setLoadingMore(false);
     }
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/feed`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        setPosts(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(
-          err?.response?.data?.message || "Failed to load timeline."
-        );
-        setLoading(false);
-      });
-  }, [router]);
+  };
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen"><Spinner size={48} /></div>;
-  }
-
-  if (error) {
-    return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
-  }
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchTimeline(nextPage);
+  };
 
   return (
-    <ProtectedRoute>
-      <div className="max-w-xl w-full mx-auto p-2 sm:p-4 space-y-4">
-        <h1 className="text-2xl font-bold mb-4">Timeline</h1>
-        {posts.length === 0 ? (
-          <EmptyState message="No posts to show. Start following users or create a post!" />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-8 px-2">
+      <div className="max-w-2xl mx-auto flex flex-col gap-6">
+        <h1 className="text-2xl font-extrabold text-indigo-700 mb-4 text-center">Timeline</h1>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="text-center text-gray-400 py-12 text-lg">No posts yet. Follow users or create a post to see your timeline!</div>
         ) : (
-          posts.map((post) => (
-            <PostCard key={post._id} post={{ ...post, media: post.media || [], likes: post.likes || [] }} />
-          ))
+          <>
+            {posts.map(post => (
+              <PostCard key={post._id} post={post} onOpenDetail={() => setSelectedPost(post)} />
+            ))}
+            {hasMore && (
+              <button
+                className="mx-auto mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+              >
+                {loadingMore ? "Loading..." : "Load More"}
+              </button>
+            )}
+          </>
+        )}
+        {selectedPost && (
+          <PostCard
+            post={selectedPost}
+            isModal
+            onCloseDetail={() => setSelectedPost(null)}
+          />
         )}
       </div>
-    </ProtectedRoute>
+    </div>
   );
 } 

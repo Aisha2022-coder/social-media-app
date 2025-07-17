@@ -1,73 +1,41 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import Avatar from "@/components/Avatar";
 import Modal from "@/components/Modal";
-import axios from "@/lib/axios";
-import { useToast } from "@/components/Toast";
-import Image from "next/image";
-
-interface Comment {
-  _id: string;
-  author: { username: string };
-  text: string;
-  createdAt: string;
-}
 
 interface PostCardProps {
-  post: {
-    _id: string;
-    title: string;
-    description: string;
-    author: string;
-    createdAt: string;
-    media?: { url: string; type: string }[];
-    likes?: string[];
-  };
+  post: any;
+  onOpenDetail?: () => void;
+  isModal?: boolean;
+  onCloseDetail?: () => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const [showDetail, setShowDetail] = useState(false);
+const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false, onCloseDetail }) => {
   const [activeMediaIdx, setActiveMediaIdx] = useState(0);
   const [likes, setLikes] = useState<string[]>(post.likes || []);
   const [likeLoading, setLikeLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentSubmitting, setCommentSubmitting] = useState(false);
-  const { showToast } = useToast();
-
-  const fetchComments = useCallback(async () => {
-    setCommentsLoading(true);
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post._id}/comments`);
-      setComments(res.data);
-    } catch {
-      setComments([]);
-    }
-    setCommentsLoading(false);
-  }, [post._id]);
+  const [detailComments, setDetailComments] = useState<any[]>([]);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [likesModalOpen, setLikesModalOpen] = useState(false);
+  const [likesUsers, setLikesUsers] = useState<any[]>([]);
+  const [likesUsersLoading, setLikesUsersLoading] = useState(false);
 
   useEffect(() => {
-    if (showDetail) fetchComments();
-  }, [showDetail, fetchComments]);
-
-  const handleAddComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentText.trim() || !currentUserId) return;
-    setCommentSubmitting(true);
-    try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post._id}/comments`, { text: commentText });
-      setCommentText("");
-      fetchComments();
-      showToast("Comment added!", "success");
-    } catch {
-      showToast("Failed to add comment.", "error");
-    }
-    setCommentSubmitting(false);
-  };
-
-  useEffect(() => {
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/me`).then(res => setCurrentUserId(res.data._id)).catch(() => setCurrentUserId(null));
+    (async () => {
+      try {
+        const axios = (await import("@/lib/axios")).default;
+        const res = await axios.get("/users/me");
+        setCurrentUserId(res.data._id);
+      } catch {
+        setCurrentUserId(null);
+      }
+    })();
   }, []);
 
   const hasMedia = post.media && post.media.length > 0;
@@ -78,168 +46,252 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     if (!currentUserId) return;
     setLikeLoading(true);
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/posts/${post._id}/like`);
+      const axios = (await import("@/lib/axios")).default;
+      const res = await axios.post(`/posts/${post._id}/like`);
       if (res.data.liked) {
         setLikes(prev => [...prev, currentUserId]);
       } else {
         setLikes(prev => prev.filter(id => id !== currentUserId));
       }
-    } catch {}
+    } catch (err) {}
     setLikeLoading(false);
   };
 
   function getMediaUrl(url: string) {
-    return url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_API_URL}${url}`;
+    return url.startsWith("http") ? url : `${process.env.NEXT_PUBLIC_API_URL}${url}`;
   }
 
-  return (
-    <div
-      className="border rounded-lg p-2 sm:p-3 md:p-4 shadow-sm hover:shadow-lg transition-shadow bg-white w-full cursor-pointer max-w-full"
-      onClick={() => setShowDetail(true)}
-      tabIndex={0}
-      role="button"
-      aria-label="View post details"
-      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setShowDetail(true); }}
-    >
-      <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
-        <Avatar username={post.author} size={28} />
-        <span className="font-semibold text-sm sm:text-base md:text-lg break-all">{post.author}</span>
-      </div>
-      {hasMedia && post.media![0].type === "image" && (
-        <Image
-          src={getMediaUrl(post.media![0].url)}
-          alt="Post media"
-          className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
-          width={400}
-          height={200}
-        />
-      )}
-      {hasMedia && post.media![0].type === "video" && (
-        <video
-          src={getMediaUrl(post.media![0].url)}
-          controls
-          className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
-        />
-      )}
-      {hasMedia && post.media![0].type === "gif" && (
-        <Image
-          src={getMediaUrl(post.media![0].url)}
-          alt="Post gif"
-          className="max-h-40 xs:max-h-56 sm:max-h-64 w-full object-contain rounded mb-2"
-          width={400}
-          height={200}
-        />
-      )}
-      <h2 className="text-sm sm:text-base md:text-lg font-semibold break-words">{post.title}</h2>
-      <p className="text-gray-700 mb-2 text-xs sm:text-sm md:text-base break-words">{post.description}</p>
-      <div className="flex items-center gap-3 mt-2 mb-1">
-        <button
+  // For modal: fetch comments when opened
+  useEffect(() => {
+    if (isModal) {
+      (async () => {
+        setDetailLoading(true);
+        try {
+          const axios = (await import("@/lib/axios")).default;
+          const res = await axios.get(`/posts/${post._id}/comments`);
+          setDetailComments(res.data);
+        } catch {
+          setDetailComments([]);
+        }
+        setDetailLoading(false);
+      })();
+    }
+  }, [isModal, post._id]);
+
+  const openLikesModal = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLikesModalOpen(true);
+    setLikesUsersLoading(true);
+    try {
+      const axios = (await import("@/lib/axios")).default;
+      const ids = (likes || []).join(",");
+      if (!ids) {
+        setLikesUsers([]);
+      } else {
+        const res = await axios.get(`/users/by-ids?ids=${ids}`);
+        setLikesUsers(res.data);
+      }
+    } catch {
+      setLikesUsers([]);
+    }
+    setLikesUsersLoading(false);
+  };
+
+  const closeLikesModal = () => {
+    setLikesModalOpen(false);
+    setLikesUsers([]);
+  };
+
+  // Card view
+  if (!isModal) {
+    return (
+      <div
+        className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 flex flex-col gap-3 w-full max-w-full hover:shadow-2xl transition-shadow cursor-pointer border border-indigo-50"
+        onClick={onOpenDetail}
+        tabIndex={0}
+        role="button"
+        aria-label="View post details"
+        onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && onOpenDetail) onOpenDetail(); }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <Avatar username={post.author} size={36} />
+          <div>
+            <span className="font-semibold text-indigo-700 text-base sm:text-lg">{post.author}</span>
+            <div className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</div>
+          </div>
+        </div>
+        {hasMedia && post.media[0].type === "image" && (
+          <Image
+            src={getMediaUrl(post.media[0].url)}
+            alt="Post media"
+            className="rounded-xl object-cover w-full max-h-72 mb-2 border"
+            width={600}
+            height={300}
+          />
+        )}
+        {hasMedia && post.media[0].type === "video" && (
+          <video
+            src={getMediaUrl(post.media[0].url)}
+            controls
+            className="rounded-xl object-cover w-full max-h-72 mb-2 border"
+          />
+        )}
+        {hasMedia && post.media[0].type === "gif" && (
+          <Image
+            src={getMediaUrl(post.media[0].url)}
+            alt="Post gif"
+            className="rounded-xl object-cover w-full max-h-72 mb-2 border"
+            width={600}
+            height={300}
+          />
+        )}
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 break-words">{post.title}</h2>
+        <p className="text-gray-700 mb-2 text-sm sm:text-base break-words">{typeof post.description === "string" && post.description.trim() !== "" ? post.description : "No description"}</p>
+        <Button
           onClick={handleLike}
           disabled={likeLoading || !currentUserId}
-          className={`flex items-center gap-1 px-2 py-1 rounded transition text-xs sm:text-sm ${hasLiked ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"}`}
+          variant={hasLiked ? "primary" : "outline"}
+          leftIcon={<span>{hasLiked ? "♥" : "♡"}</span>}
+          className="px-3 py-1 text-sm"
           aria-label={hasLiked ? "Unlike post" : "Like post"}
         >
-          <span>{hasLiked ? "♥" : "♡"}</span>
-          <span>{likes.length}</span>
-        </button>
+          <span onClick={openLikesModal} className="underline cursor-pointer mr-1">{likes.length}</span>
+        </Button>
+        <Button
+          variant="secondary"
+          leftIcon={<span>💬</span>}
+          className="px-3 py-1 text-sm"
+        >
+          Comment
+        </Button>
+        <div className="text-xs text-gray-400 break-words">
+          {new Date(post.createdAt).toLocaleString()}
+        </div>
       </div>
-      <div className="text-xs text-gray-500 break-words">
-        {new Date(post.createdAt).toLocaleString()}
-      </div>
-      {showDetail && (
-        <Modal title="Post Details" onClose={() => setShowDetail(false)}>
-          <div className="space-y-2 max-w-xs xs:max-w-sm sm:max-w-md w-full p-2 sm:p-4 mx-auto text-xs sm:text-sm" style={{maxWidth: '98vw'}}>
-            <div className="flex items-center gap-2 mb-2">
-              <Avatar username={post.author} size={32} />
-              <span className="font-semibold text-base sm:text-lg break-all">{post.author}</span>
-            </div>
-            <h2 className="text-base sm:text-lg font-semibold break-words">{post.title}</h2>
-            <p className="text-gray-700 mb-2 break-words">{post.description}</p>
-            <div className="text-xs text-gray-500 mb-2 break-words">
-              {new Date(post.createdAt).toLocaleString()}
-            </div>
-            {hasMedia && (
-              <div>
-                <div className="flex gap-1 sm:gap-2 mb-2 justify-center flex-wrap">
-                  {post.media!.map((m, idx) => (
-                    <button
-                      key={idx}
-                      className={`border rounded p-1 ${activeMediaIdx === idx ? 'border-blue-500' : 'border-gray-300'}`}
-                      onClick={e => { e.stopPropagation(); setActiveMediaIdx(idx); }}
-                      aria-label={`Show media ${idx + 1}`}
-                    >
-                      {m.type === "image" || m.type === "gif" ? (
-                        <Image src={getMediaUrl(m.url)} alt="thumb" className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" width={40} height={40} />
-                      ) : m.type === "video" ? (
-                        <video src={getMediaUrl(m.url)} className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 object-cover rounded" />
-                      ) : null}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex justify-center">
-                  {post.media![activeMediaIdx].type === "image" || post.media![activeMediaIdx].type === "gif" ? (
-                    <Image
-                      src={getMediaUrl(post.media![activeMediaIdx].url)}
-                      alt="Post media large"
-                      className="max-h-28 xs:max-h-40 sm:max-h-80 w-full object-contain rounded"
-                      width={400}
-                      height={200}
-                    />
-                  ) : post.media![activeMediaIdx].type === "video" ? (
-                    <video
-                      src={getMediaUrl(post.media![activeMediaIdx].url)}
-                      controls
-                      autoPlay
-                      className="max-h-28 xs:max-h-40 sm:max-h-80 w-full object-contain rounded"
-                    />
-                  ) : null}
-                </div>
-              </div>
-            )}
-            <div className="mt-4">
-              <h3 className="font-semibold mb-2">Comments</h3>
-              {commentsLoading ? (
-                <div className="text-gray-500 text-sm">Loading comments...</div>
-              ) : comments.length === 0 ? (
-                <div className="text-gray-400 text-sm">No comments yet.</div>
-              ) : (
-                <div className="space-y-2 max-h-32 xs:max-h-40 sm:max-h-48 overflow-y-auto">
-                  {comments.map((c, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm">
-                      <Avatar username={c.author?.username || "?"} size={24} />
-                      <div>
-                        <div className="font-semibold">{c.author?.username || "Unknown"}</div>
-                        <div>{c.text}</div>
-                        <div className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleString()}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <form onSubmit={handleAddComment} className="flex gap-2 mt-2">
-                <input
-                  type="text"
-                  value={commentText}
-                  onChange={e => setCommentText(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="flex-1 border rounded px-2 py-1 text-xs sm:text-sm"
-                  disabled={commentSubmitting || !currentUserId}
-                  aria-label="Add a comment"
-                />
-                <button
-                  type="submit"
-                  disabled={commentSubmitting || !commentText.trim() || !currentUserId}
-                  className="bg-blue-500 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-blue-600 disabled:opacity-50"
-                  aria-label="Submit comment"
-                >
-                  {commentSubmitting ? "..." : "Post"}
-                </button>
-              </form>
-            </div>
+    );
+  }
+
+  // Modal view
+  return (
+    <Modal title="Post Details" onClose={onCloseDetail}>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3 mb-2">
+          <Avatar username={post.author} size={36} />
+          <div>
+            <span className="font-semibold text-indigo-700 text-base sm:text-lg">{post.author}</span>
+            <div className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</div>
           </div>
+        </div>
+        {hasMedia && post.media[0].type === "image" && (
+          <Image
+            src={getMediaUrl(post.media[0].url)}
+            alt="Post media"
+            className="rounded-xl object-cover w-full max-h-72 mb-2 border"
+            width={600}
+            height={300}
+          />
+        )}
+        {hasMedia && post.media[0].type === "video" && (
+          <video
+            src={getMediaUrl(post.media[0].url)}
+            controls
+            className="rounded-xl object-cover w-full max-h-72 mb-2 border"
+          />
+        )}
+        {hasMedia && post.media[0].type === "gif" && (
+          <Image
+            src={getMediaUrl(post.media[0].url)}
+            alt="Post gif"
+            className="rounded-xl object-cover w-full max-h-72 mb-2 border"
+            width={600}
+            height={300}
+          />
+        )}
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 break-words">{post.title}</h2>
+        <p className="text-gray-700 mb-2 text-sm sm:text-base break-words">{typeof post.description === "string" && post.description.trim() !== "" ? post.description : "No description"}</p>
+        <Button
+          onClick={handleLike}
+          disabled={likeLoading || !currentUserId}
+          variant={hasLiked ? "primary" : "outline"}
+          leftIcon={<span>{hasLiked ? "♥" : "♡"}</span>}
+          className="px-3 py-1 text-sm"
+          aria-label={hasLiked ? "Unlike post" : "Like post"}
+        >
+          <span onClick={openLikesModal} className="underline cursor-pointer mr-1">{likes.length}</span>
+        </Button>
+        <div className="mt-4">
+          <h3 className="font-semibold mb-2">Comments</h3>
+          {detailLoading ? (
+            <div className="flex justify-center py-4"><div className="w-6 h-6 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" /></div>
+          ) : detailComments.length === 0 ? (
+            <div className="text-gray-400 text-sm">No comments yet.</div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {detailComments.map((c: any) => (
+                <li key={c._id} className="py-2 flex items-center gap-2">
+                  <Avatar username={c.author?.username || "?"} size={28} />
+                  <span className="font-medium text-gray-800">{c.author?.username || "Unknown"}</span>
+                  <span className="text-xs text-gray-400 ml-2">{new Date(c.createdAt).toLocaleString()}</span>
+                  <span className="ml-2 text-gray-700">{c.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <form
+            className="flex gap-2 mt-4"
+            onSubmit={async e => {
+              e.preventDefault();
+              if (!currentUserId || !commentText.trim()) return;
+              setCommentSubmitting(true);
+              try {
+                const axios = (await import("@/lib/axios")).default;
+                await axios.post(`/posts/${post._id}/comments`, { text: commentText });
+                setCommentText("");
+                setDetailLoading(true);
+                const res = await axios.get(`/posts/${post._id}/comments`);
+                setDetailComments(res.data);
+                setDetailLoading(false);
+              } catch {}
+              setCommentSubmitting(false);
+            }}
+          >
+            <input
+              type="text"
+              className="flex-1 border rounded px-3 py-2 text-sm"
+              placeholder="Add a comment..."
+              value={commentText}
+              onChange={e => setCommentText(e.target.value)}
+              disabled={commentSubmitting || !currentUserId}
+              maxLength={300}
+              required
+            />
+            <button
+              type="submit"
+              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition font-semibold text-sm"
+              disabled={commentSubmitting || !currentUserId || !commentText.trim()}
+            >
+              {commentSubmitting ? "Posting..." : "Post"}
+            </button>
+          </form>
+        </div>
+        <Modal title="Liked by" onClose={closeLikesModal}>
+          {likesUsersLoading ? (
+            <div className="flex justify-center py-8"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" /></div>
+          ) : likesUsers.length === 0 ? (
+            <div className="text-center text-gray-400 py-8">No users found.</div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {likesUsers.map(u => (
+                <li key={u._id} className="flex items-center gap-3 py-3">
+                  <Avatar username={u.username} size={40} />
+                  <span className="font-medium text-gray-800">{u.username}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Modal>
-      )}
-    </div>
+      </div>
+    </Modal>
   );
 };
 

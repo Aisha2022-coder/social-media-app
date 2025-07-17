@@ -4,6 +4,7 @@ import { Post, PostDocument } from './post.schema';
 import { Comment, CommentDocument } from './comment.schema';
 import { Model, Types } from 'mongoose';
 import { NotificationsService } from './notifications.service';
+import { User, UserDocument } from '../users/user.schema';
 
 @Injectable()
 export class PostsService {
@@ -11,6 +12,7 @@ export class PostsService {
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
     private notificationsService: NotificationsService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   async createPost(title: string, description: string, authorId: string, media: { url: string; type: string }[] = []) {
@@ -20,11 +22,27 @@ export class PostsService {
       author: new Types.ObjectId(authorId),
       media,
     });
-    return post.save();
+    const savedPost = await post.save();
+    const author = await this.userModel.findById(authorId);
+    if (author && Array.isArray(author.followers)) {
+      for (const followerId of author.followers) {
+        await this.notificationsService.createNotification(
+          followerId,
+          'new_post',
+          { postId: String(savedPost._id), fromUser: authorId }
+        );
+      }
+    }
+    return savedPost;
   }
 
-  async getAllPosts() {
-    return this.postModel.find().sort({ createdAt: -1 }).exec();
+  async getAllPosts(page = 1, limit = 10) {
+    return this.postModel.find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean()
+      .exec();
   }
 
   async getPostsByUser(userId: string) {
@@ -82,6 +100,21 @@ export class PostsService {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     return this.postModel.find({ createdAt: { $gte: sevenDaysAgo } })
       .sort({ likes: -1, createdAt: -1 })
+      .exec();
+  }
+
+  async getTimelinePosts(userId: string, page = 1, limit = 10) {
+    const user = await this.userModel.findById(userId).lean();
+    if (!user) throw new Error('User not found');
+    const followingIds = (user.following || [])
+      .filter((id: string) => typeof id === 'string' && /^[a-fA-F0-9]{24}$/.test(id))
+      .map((id: string) => new Types.ObjectId(id));
+    followingIds.push(new Types.ObjectId(userId));
+    return this.postModel.find({ author: { $in: followingIds } })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean()
       .exec();
   }
 } 
