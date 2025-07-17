@@ -4,7 +4,6 @@ import Avatar from "@/components/Avatar";
 import PostCard from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/Modal";
-import { useRouter } from "next/navigation";
 import { User, Post } from "@/types/social";
 
 export default function ProfilePage({ params }: { params: Promise<{ id: string }> }) {

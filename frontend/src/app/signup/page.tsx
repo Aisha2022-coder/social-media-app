@@ -28,8 +28,6 @@ export default function SignupPage() {
         err !== null &&
         "response" in err &&
         typeof (err as Record<string, unknown>).response === "object" &&
-        (err as Record<string, any>).response &&
-        "data" in (err as Record<string, unknown>).response &&
         (err as { response?: { data?: { message?: string } } }).response?.data?.message
       ) {
         setError((err as { response: { data: { message: string } } }).response.data.message);
