@@ -20,7 +20,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
   const [commentSubmitting, setCommentSubmitting] = useState(false);
   const [detailComments, setDetailComments] = useState<Array<{ _id: string; author: User; text: string; createdAt: string }>>([]);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [likesModalOpen, setLikesModalOpen] = useState(false);
   const [likesUsers, setLikesUsers] = useState<User[]>([]);
   const [likesUsersLoading, setLikesUsersLoading] = useState(false);
 
@@ -51,8 +50,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
       } else {
         setLikes(prev => prev.filter(id => id !== currentUserId));
       }
-    } catch (err) {}
-    setLikeLoading(false);
+    } catch {
+      setLikeLoading(false);
+    }
   };
 
   function getMediaUrl(url: string) {
@@ -78,7 +78,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
 
   const openLikesModal = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setLikesModalOpen(true);
     setLikesUsersLoading(true);
     try {
       const axios = (await import("@/lib/axios")).default;
@@ -96,7 +95,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
   };
 
   const closeLikesModal = () => {
-    setLikesModalOpen(false);
     setLikesUsers([]);
   };
 

@@ -27,13 +27,12 @@ export default function SignupPage() {
         typeof err === "object" &&
         err !== null &&
         "response" in err &&
-        typeof (err as any).response === "object" &&
-        (err as any).response &&
-        "data" in (err as any).response &&
-        (err as any).response.data &&
-        "message" in (err as any).response.data
+        typeof (err as Record<string, unknown>).response === "object" &&
+        (err as Record<string, any>).response &&
+        "data" in (err as Record<string, unknown>).response &&
+        (err as { response?: { data?: { message?: string } } }).response?.data?.message
       ) {
-        setError((err as any).response.data.message);
+        setError((err as { response: { data: { message: string } } }).response.data.message);
       } else {
         setError("Signup failed. Please try again.");
       }

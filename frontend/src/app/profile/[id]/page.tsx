@@ -19,7 +19,6 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
   const [editUsername, setEditUsername] = useState("");
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
-  const router = useRouter();
 
   const handleOpenModal = async (type: "followers" | "following") => {
     setShowModal(type);
@@ -59,8 +58,8 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
       const res = await axios.patch("/users/me", { username: editUsername });
       setUser(res.data);
       setEditModalOpen(false);
-    } catch (err: any) {
-      setEditError(err?.response?.data?.message || "Failed to update username");
+    } catch {
+      setEditError("Failed to update username");
     }
     setEditLoading(false);
   };
@@ -73,7 +72,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
         setUser(userRes.data);
         const postsRes = await axios.get(`/users/${unwrappedParams.id}/posts`);
         setPosts(postsRes.data);
-      } catch (err: any) {
+      } catch {
         setUser(null);
       } finally {
         setLoading(false);
