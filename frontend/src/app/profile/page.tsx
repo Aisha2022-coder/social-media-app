@@ -20,8 +20,14 @@ export default function MyProfilePage() {
         // Fetch posts for this user
         const postsRes = await (await import("@/lib/axios")).default.get(`/users/${userRes.data._id}/posts`);
         setPosts(postsRes.data);
-      } catch {
-        if (err?.response?.status === 401) {
+      } catch (err: unknown) {
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "response" in err &&
+          typeof (err as Record<string, unknown>).response === "object" &&
+          (err as { response?: { status?: number } }).response?.status === 401
+        ) {
           setError(null);
         } else {
           setError("User not found.");
