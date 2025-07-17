@@ -1,38 +1,21 @@
-"use client";
+export const metadata = {
+  title: "Social Media App",
+  description: "A modern social media platform."
+};
 
-import { Geist, Geist_Mono } from "next/font/google";
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import { usePathname } from "next/navigation";
-import { ToastProvider } from "@/components/Toast";
+import ClientLayout from "./ClientLayout";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const pathname = usePathname();
-  const showNavbar = pathname !== "/login" && pathname !== "/signup";
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ToastProvider>
-          {showNavbar && <Navbar />}
-          {children}
-        </ToastProvider>
+      <body>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
