@@ -54,7 +54,6 @@ export default function MyProfilePage() {
                 <Avatar username={user.username} size={96} />
                 <div className="flex-1 flex flex-col gap-2 items-center sm:items-start">
                   <h1 className="text-2xl font-extrabold text-indigo-700">{user.username}</h1>
-                  <p className="text-gray-500 text-center sm:text-left">{user.bio}</p>
                   <div className="flex gap-4 mt-2">
                     <div className="text-center">
                       <div className="font-bold text-indigo-700 text-lg">{user.followers}</div>
