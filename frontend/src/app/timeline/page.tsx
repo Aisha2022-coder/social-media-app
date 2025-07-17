@@ -1,14 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
+import { Post } from "@/types/social";
 
 export default function TimelinePage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<any | null>(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     fetchTimeline(1, true);

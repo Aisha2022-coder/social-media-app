@@ -3,27 +3,25 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Avatar from "@/components/Avatar";
 import Modal from "@/components/Modal";
+import { Post, User } from "@/types/social";
 
 interface PostCardProps {
-  post: any;
+  post: Post;
   onOpenDetail?: () => void;
   isModal?: boolean;
   onCloseDetail?: () => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false, onCloseDetail }) => {
-  const [activeMediaIdx, setActiveMediaIdx] = useState(0);
   const [likes, setLikes] = useState<string[]>(post.likes || []);
   const [likeLoading, setLikeLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
-  const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentSubmitting, setCommentSubmitting] = useState(false);
-  const [detailComments, setDetailComments] = useState<any[]>([]);
+  const [detailComments, setDetailComments] = useState<Array<{ _id: string; author: User; text: string; createdAt: string }>>([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [likesModalOpen, setLikesModalOpen] = useState(false);
-  const [likesUsers, setLikesUsers] = useState<any[]>([]);
+  const [likesUsers, setLikesUsers] = useState<User[]>([]);
   const [likesUsersLoading, setLikesUsersLoading] = useState(false);
 
   useEffect(() => {
@@ -114,31 +112,31 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
         onKeyDown={e => { if ((e.key === "Enter" || e.key === " ") && onOpenDetail) onOpenDetail(); }}
       >
         <div className="flex items-center gap-3 mb-2">
-          <Avatar username={post.author} size={36} />
+          <Avatar username={typeof post.author === 'string' ? post.author : post.author.username} size={36} />
           <div>
-            <span className="font-semibold text-indigo-700 text-base sm:text-lg">{post.author}</span>
+            <span className="font-semibold text-indigo-700 text-base sm:text-lg">{typeof post.author === 'string' ? post.author : post.author.username}</span>
             <div className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</div>
           </div>
         </div>
-        {hasMedia && post.media[0].type === "image" && (
+        {hasMedia && post.media![0].type === "image" && (
           <Image
-            src={getMediaUrl(post.media[0].url)}
+            src={getMediaUrl(post.media![0].url)}
             alt="Post media"
             className="rounded-xl object-cover w-full max-h-72 mb-2 border"
             width={600}
             height={300}
           />
         )}
-        {hasMedia && post.media[0].type === "video" && (
+        {hasMedia && post.media![0].type === "video" && (
           <video
-            src={getMediaUrl(post.media[0].url)}
+            src={getMediaUrl(post.media![0].url)}
             controls
             className="rounded-xl object-cover w-full max-h-72 mb-2 border"
           />
         )}
-        {hasMedia && post.media[0].type === "gif" && (
+        {hasMedia && post.media![0].type === "gif" && (
           <Image
-            src={getMediaUrl(post.media[0].url)}
+            src={getMediaUrl(post.media![0].url)}
             alt="Post gif"
             className="rounded-xl object-cover w-full max-h-72 mb-2 border"
             width={600}
@@ -176,31 +174,31 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
     <Modal title="Post Details" onClose={onCloseDetail ?? (() => {})}>
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3 mb-2">
-          <Avatar username={post.author} size={36} />
+          <Avatar username={typeof post.author === 'string' ? post.author : post.author.username} size={36} />
           <div>
-            <span className="font-semibold text-indigo-700 text-base sm:text-lg">{post.author}</span>
+            <span className="font-semibold text-indigo-700 text-base sm:text-lg">{typeof post.author === 'string' ? post.author : post.author.username}</span>
             <div className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</div>
           </div>
         </div>
-        {hasMedia && post.media[0].type === "image" && (
+        {hasMedia && post.media![0].type === "image" && (
           <Image
-            src={getMediaUrl(post.media[0].url)}
+            src={getMediaUrl(post.media![0].url)}
             alt="Post media"
             className="rounded-xl object-cover w-full max-h-72 mb-2 border"
             width={600}
             height={300}
           />
         )}
-        {hasMedia && post.media[0].type === "video" && (
+        {hasMedia && post.media![0].type === "video" && (
           <video
-            src={getMediaUrl(post.media[0].url)}
+            src={getMediaUrl(post.media![0].url)}
             controls
             className="rounded-xl object-cover w-full max-h-72 mb-2 border"
           />
         )}
-        {hasMedia && post.media[0].type === "gif" && (
+        {hasMedia && post.media![0].type === "gif" && (
           <Image
-            src={getMediaUrl(post.media[0].url)}
+            src={getMediaUrl(post.media![0].url)}
             alt="Post gif"
             className="rounded-xl object-cover w-full max-h-72 mb-2 border"
             width={600}
@@ -227,7 +225,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
             <div className="text-gray-400 text-sm">No comments yet.</div>
           ) : (
             <ul className="divide-y divide-gray-100">
-              {detailComments.map((c: any) => (
+              {detailComments.map((c) => (
                 <li key={c._id} className="py-2 flex items-center gap-2">
                   <Avatar username={c.author?.username || "?"} size={28} />
                   <span className="font-medium text-gray-800">{c.author?.username || "Unknown"}</span>
