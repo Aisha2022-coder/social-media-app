@@ -4,6 +4,7 @@ import PostCard from "@/components/PostCard";
 import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Post, User } from "@/types/social";
+import Modal from "@/components/Modal";
 
 export default function ExplorePage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,6 +16,7 @@ export default function ExplorePage() {
   const [suggestedLoading, setSuggestedLoading] = useState(true);
   const [followLoading, setFollowLoading] = useState<string | null>(null);
   const [following, setFollowing] = useState<string[]>([]);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     fetchPosts(1, true);
@@ -92,6 +94,14 @@ export default function ExplorePage() {
     setFollowLoading(null);
   };
 
+  const handlePostClick = (post: Post) => {
+    setSelectedPost(post);
+  };
+
+  const handleClosePost = () => {
+    setSelectedPost(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-8 px-2">
       <div className="max-w-5xl mx-auto flex flex-col gap-6">
@@ -146,7 +156,7 @@ export default function ExplorePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map(post => (
                 <div key={post._id} className="hover:scale-[1.025] transition-transform">
-                  <PostCard post={post} />
+                  <PostCard post={post} onOpenDetail={() => handlePostClick(post)} />
                 </div>
               ))}
             </div>
@@ -162,6 +172,15 @@ export default function ExplorePage() {
           </>
         )}
       </div>
+      
+      {/* Post Detail Modal */}
+      {selectedPost && (
+        <PostCard 
+          post={selectedPost} 
+          isModal={true} 
+          onCloseDetail={handleClosePost}
+        />
+      )}
     </div>
   );
 } 

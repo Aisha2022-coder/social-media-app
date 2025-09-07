@@ -18,6 +18,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
   const [editUsername, setEditUsername] = useState("");
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   const handleOpenModal = async (type: "followers" | "following") => {
     setShowModal(type);
@@ -116,9 +117,9 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {posts.map(post => (
-                    <PostCard key={post._id} post={post} />
+                    <PostCard key={post._id} post={post} onOpenDetail={() => setSelectedPost(post)} />
                   ))}
-                    </div>
+                </div>
             )}
           </div>
           {showModal && (
@@ -160,6 +161,15 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                 </button>
               </form>
             </Modal>
+          )}
+          
+          {/* Post Detail Modal */}
+          {selectedPost && (
+            <PostCard 
+              post={selectedPost} 
+              isModal={true} 
+              onCloseDetail={() => setSelectedPost(null)}
+            />
           )}
           </>
         ) : (

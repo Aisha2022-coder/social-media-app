@@ -157,6 +157,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onOpenDetail, isModal = false
           variant="secondary"
           leftIcon={<span>💬</span>}
           className="px-3 py-1 text-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onOpenDetail) onOpenDetail();
+          }}
         >
           Comment
         </Button>

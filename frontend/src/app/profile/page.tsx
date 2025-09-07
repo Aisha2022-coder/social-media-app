@@ -5,12 +5,14 @@ import PostCard from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { User, Post } from "@/types/social";
+import Modal from "@/components/Modal";
 
 export default function MyProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -74,7 +76,7 @@ export default function MyProfilePage() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {posts.map(post => (
-                      <PostCard key={post._id} post={post} />
+                      <PostCard key={post._id} post={post} onOpenDetail={() => setSelectedPost(post)} />
                     ))}
                   </div>
                 )}
@@ -89,6 +91,15 @@ export default function MyProfilePage() {
             </div>
           )}
         </div>
+        
+        {/* Post Detail Modal */}
+        {selectedPost && (
+          <PostCard 
+            post={selectedPost} 
+            isModal={true} 
+            onCloseDetail={() => setSelectedPost(null)}
+          />
+        )}
       </div>
     </ProtectedRoute>
   );
